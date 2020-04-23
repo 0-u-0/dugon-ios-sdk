@@ -12,7 +12,7 @@ import WebRTC
 
 class Publisher:Transport{
     
-    let senders = [String:Sender]()
+    let senders = [Sender]()
     
     let asyncQueue = DispatchQueue(label: "publisher.queue")
     
@@ -108,7 +108,7 @@ class Publisher:Transport{
         }
      
         
-        for (i,s) in senders {
+        for s in senders {
             if let media = s.media {
                 sdp.medias.append(media)
             }
