@@ -15,6 +15,7 @@ let DEFAULT_AUDIO_CODEC = "opus"
 
 public protocol SessionDelegate:class {
     func onConnected();
+    func onSender(sender:Sender);
 }
 
 public class Session:SocketDelegate{
@@ -26,7 +27,7 @@ public class Session:SocketDelegate{
 
     let factory:RTCPeerConnectionFactory
     
-    var publisher:Publisher!
+    var publisher:Publisher?
     
     public weak var delegate:SessionDelegate?
 
@@ -65,6 +66,11 @@ public class Session:SocketDelegate{
         self.publish(source: source, codec: codec)
     }
     
+    public func unpublish(senderId:String){
+        guard let publisher = publisher else { return }
+        publisher.unpublish(senderId: senderId)
+    }
+    
     private func initTransport(role:String,parameters:[String:Any]){
         guard let transportId = parameters["id"] as? String else {return}
         guard let iceParameters = parameters["iceParameters"] as? [String:Any] else {return}
@@ -73,7 +79,7 @@ public class Session:SocketDelegate{
 
         if role == "pub" {
             publisher = Publisher(factory: factory, id: transportId, iceCandidate: iceCandidates, iceParameters: iceParameters, dtlsParameters: dtlsParameters)
-            publisher.onDtls = {(algorithm,hash,role)->Void in
+            publisher!.onDtls = {(algorithm,hash,role)->Void in
                 self.socket.request(params: ["event":"dtls","data":[
                     "transportId":self.publisher!.id,
                     "role":"pub",
@@ -89,22 +95,37 @@ public class Session:SocketDelegate{
                 })
             }
             
-            publisher.onSender = {(sender)->Void in
+            
+            publisher!.onSender = {(sender)->Void in
                 if let mergedMedia = sender.media {
                     if let pubCodec = mergedMedia.toCodec() {
                         let codecJson = pubCodec.toJson()
-                        self.socket.request(params: ["event":"publish","data":[
+                        self.socket.request(event:"publish",data:[
                             "transportId":self.publisher!.id,
                             "codec":codecJson,
                             "metadata":[]
-                            ]], callback:{(data:[String:Any])->() in
-                                print("sender ok")
-                                print(data)
+                            ], callback:{(data:[String:Any])->() in
+                                guard let senderId = data["senderId"] as? String else { return }
+                                sender.id = senderId
+                                
+                                guard let delegate = self.delegate else { return }
+                                delegate.onSender(sender: sender)
                         })
                     }
                 }
             }
-            publisher.initi()
+            
+            publisher!.onSenderClosed = {(senderId)-> Void in
+                self.socket.request(event:"unpublish",data:[
+                    "transportId":self.publisher!.id,
+                    "senderId":senderId,
+                    "metadata":[]
+                    ], callback:{(data:[String:Any])->() in
+                        print("unpublish ok")
+                })
+            }
+            
+            publisher!.initi()
         }else if role == "sub" {
             //TODO:
         }

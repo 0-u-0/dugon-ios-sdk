@@ -96,7 +96,7 @@ public struct Extension:Codable {
 public class Media{
     public var type:String?
     public var port:Int?
-    public var mid:Int?
+    public var mid:String?
     //protocol
     public var proto:String?
     public var connection:String?
@@ -113,6 +113,7 @@ public class Media{
     
     public var cname:String?
     
+    
     public var fingerprint:Fingerprint?
     
     public var extensions = [Extension]()
@@ -126,6 +127,13 @@ public class Media{
     public var rtcpMux:Bool = false
     public var rtcpRsize:Bool = false
 
+    public var available:Bool {
+        if let direction = direction {
+           return direction != "inactive"
+        }
+        return false
+    }
+    
     func merge(codecCap:Codec,iceParameters:[String:Any],iceCandidates:[[String:Any]]) -> Media? {
         guard let remoteIcePwd = iceParameters["password"] as? String else { return nil}
         guard let remoteIceUfrag = iceParameters["usernameFragment"] as? String else { return nil }
@@ -137,12 +145,19 @@ public class Media{
         mergedMedia.proto = proto
         mergedMedia.port = port
         mergedMedia.cname = cname
-        mergedMedia.connection = connection
+        mergedMedia.connection = "IN IP4 127.0.0.1"
         mergedMedia.mid = mid
         mergedMedia.ssrc = ssrc
         mergedMedia.iceOptions = "renomination"
-        //TODO:
-        mergedMedia.direction = "recvonly"
+
+        if let direction = self.direction {
+            if direction == "inactive"{
+                mergedMedia.direction = "inactive"
+            }else{
+                mergedMedia.direction = "recvonly"
+            }
+        }
+
         mergedMedia.setup = "passive"
         //
         mergedMedia.rtcpMux = true
@@ -237,24 +252,30 @@ public class Media{
         var lines = [String]()
         let payloads = rtps.map{String($0.payload)}
         
-        if let type = self.type,let port = self.port,let proto = self.proto {
+        if let type = type,let port1 = port,let proto = proto {
+            var port:Int
+            if available || mid! == "0" {
+                port = port1
+            }else{
+                port = 0
+            }
             lines.append("m=\(type) \(port) \(proto) \(payloads.joined(separator: " "))")
         }
         
-        if let connection = self.connection {
+        if let connection = connection {
             lines.append("c=\(connection)")
         }
     
-        if rtcp != nil {
-            lines.append("a=rtcp:\(rtcp!)")
+        if let rtcp = rtcp {
+            lines.append("a=rtcp:\(rtcp)")
         }
         
-        if iceUfrag != nil {
-            lines.append("a=ice-ufrag:\(iceUfrag!)")
+        if let iceUfrag = iceUfrag {
+            lines.append("a=ice-ufrag:\(iceUfrag)")
         }
         
-        if icePwd != nil {
-            lines.append("a=ice-pwd:\(icePwd!)")
+        if let icePwd = icePwd {
+            lines.append("a=ice-pwd:\(icePwd)")
         }
         
         if iceOptions != nil {
@@ -289,12 +310,12 @@ public class Media{
             lines.append("a=rtcp-rsize")
         }
         
-        
-        
-        for ext in extensions {
-            lines.append("a=extmap:\(ext.id) \(ext.uri)")
+        if available{
+            for ext in extensions {
+                lines.append("a=extmap:\(ext.id) \(ext.uri)")
+            }
         }
-        
+
         for rtp in rtps {
             lines.append(rtp.toString())
         }
@@ -319,7 +340,6 @@ public class Media{
             lines.append("a=end-of-candidates");
         }
         
-
         let mediaSdp = lines.joined(separator: "\n")
         return mediaSdp
     }

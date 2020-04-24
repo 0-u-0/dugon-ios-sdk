@@ -34,8 +34,8 @@ class Transport: NSObject,RTCPeerConnectionDelegate{
     func initi(){
      
         let config = RTCConfiguration()
-        config.sdpSemantics = RTCSdpSemantics.unifiedPlan;
-        
+        config.sdpSemantics = .unifiedPlan;
+        config.bundlePolicy = .maxBundle
         let constraints = RTCMediaConstraints.init(mandatoryConstraints: nil, optionalConstraints: nil)
         pc = factory.peerConnection(with: config, constraints: constraints, delegate: self)
                

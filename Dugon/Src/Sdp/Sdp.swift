@@ -54,11 +54,7 @@ public class Sdp{
             }
             return session
         }
-    //
-    //    public static func stringify( sdpDic:[String:Any]) -> String{
-    //
-    //    }
-    //
+ 
         static func handleSession(lines:[String]) -> Sdp {
             let session = Sdp()
             for line in lines{
@@ -133,7 +129,7 @@ public class Sdp{
                         case "sendrecv","sendonly","recvonly","inactive":
                             media.direction = value
                         default:
-                            print("unknown attr \(value)")
+                            print("unknown attr c1 \(value)")
                          }
                     }else if attrPair.count == 2{
                         let attrKey = attrPair[0]
@@ -149,7 +145,7 @@ public class Sdp{
                             media.setup = attrValue
                         case "mid":
                             //TODO: to Int
-                            media.mid = Int(attrValue)
+                            media.mid = attrValue
                         case "rtcp":
                             //TODO: destruct
                             media.rtcp = attrValue
@@ -256,8 +252,11 @@ public class Sdp{
 //                                let sg = SsrcGroup(semantics: result[1], ssrcs: ssrcs)
 //                                media.ssrcGroups.append(sg)
                             }
+                        case "candidate":
+                            //TODO: address it later
+                            break
                         default:
-                           print("unknown attr \(attrKey)")
+                           print("unknown attr c2 \(attrKey)")
                         }
                     }
                    
@@ -293,8 +292,9 @@ public class Sdp{
             lines.append("a=msid-semantic:\(msidSemantic)")
         }
         
-        lines.append("a=group:BUNDLE 0")
-        
+        let mids = medias.filter{$0.available || $0.mid! == "0"}.map{$0.mid!}.joined(separator: " ")
+        lines.append("a=group:BUNDLE \(mids)")
+
         if let fingerprint = fingerprint {
             lines.append("a=fingerprint:\(fingerprint.algorithm) \(fingerprint.hash)")
         }

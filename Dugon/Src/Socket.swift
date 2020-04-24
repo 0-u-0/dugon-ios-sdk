@@ -52,6 +52,10 @@ class Socket : WebSocketDelegate{
         socket.write(string: data.json)
     }
     
+    func request(event:String,data:[String:Any],callback:@escaping RequestCallback) {
+        request(params: ["event":event,"data":data], callback: callback)
+    }
+    
     // MARK: - WebSocketDelegate
     public func didReceive(event: WebSocketEvent, client: WebSocket) {
         switch event {
@@ -64,19 +68,20 @@ class Socket : WebSocketDelegate{
         case .text(let mes):
             guard let dic = mes.jsonStr2Dict() else { return }
             
-            if let method:String = dic["method"] as? String {
+            if let method = dic["method"] as? String,let params = dic["params"] as? [String:Any] {
                 switch method {
                 case "response":
                     guard let id:Int = dic["id"] as? Int else { return }
-                    guard let params:[String:Any] = dic["params"] as? [String:Any] else { return }
                     
                     if let callback = callbacks[id] {
                         callback(params)
                         callbacks[id] = nil
                     }
-                    
+                case "notification":
+                    break
+//                    print(params)
                 default:
-                    print("unknown method")
+                    print("unknown method \(method)")
                 }
             } else {
                 print("unknown message")

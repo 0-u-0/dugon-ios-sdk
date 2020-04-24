@@ -26,7 +26,7 @@ struct Codec:Codable {
     
     var ssrc:Int?
     var cname:String?
-    var mid:Int?
+    var mid:String?
 
     var rtx:RTX?
     
@@ -65,7 +65,6 @@ struct Codec:Codable {
     }
     
     static func create(dic:[String:Any]) -> Codec?{
-        print(dic)
         let codecJson = dic.json.data(using: .utf8)!
         
         var codecCap: Codec?

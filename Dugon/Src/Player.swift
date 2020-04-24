@@ -15,10 +15,7 @@ public struct Player{
     public init(){
         self.view = RTCCameraPreviewView(frame: CGRect.zero)
 
-        var localVideoFrame = CGRect.init(x:0, y:0, width:160, height:160)
-        localVideoFrame.origin.x = 0;
-        localVideoFrame.origin.y = 0;
-        
+        var localVideoFrame = CGRect.init(x:0, y:0, width:160, height:160)        
         view.frame = localVideoFrame;
     }
 }
