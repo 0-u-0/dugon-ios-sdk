@@ -11,21 +11,16 @@ import Starscream
 
 
 
-
-
-protocol SocketDelegate: class {
-    func onConnected()
-}
-
 typealias RequestCallback = (_ data: [String:Any]) -> ()
 
 class Socket : WebSocketDelegate{
 
     let socket:WebSocket
     let url:String
-    
-    weak var delegate:SocketDelegate?
-    
+        
+    public var onConnected:(()->Void)?
+    public var onNotification:((_ event:String,_ data:[String:Any])->Void)?
+
     //TODO: add timeout
     var callbacks:[Int:RequestCallback]
     public init(url:String,params:[String:Any]) {
@@ -60,9 +55,8 @@ class Socket : WebSocketDelegate{
     public func didReceive(event: WebSocketEvent, client: WebSocket) {
         switch event {
         case .connected(_):
-            if self.delegate != nil{
-                self.delegate?.onConnected()
-            }
+            guard let onConnected = onConnected else { return } //TODO:error
+            onConnected()
         case .disconnected(let reason, let code):
             print("websocket is disconnected: \(reason) with code: \(code)")
         case .text(let mes):
@@ -71,15 +65,17 @@ class Socket : WebSocketDelegate{
             if let method = dic["method"] as? String,let params = dic["params"] as? [String:Any] {
                 switch method {
                 case "response":
-                    guard let id:Int = dic["id"] as? Int else { return }
+                    guard let id = dic["id"] as? Int else { return }
                     
                     if let callback = callbacks[id] {
                         callback(params)
                         callbacks[id] = nil
                     }
                 case "notification":
-                    break
-//                    print(params)
+                    guard let event = params["event"] as? String,let data = params["data"] as? [String:Any] else { return }
+                    guard let onNotification = onNotification else { return } //TODO:error
+
+                    onNotification(event,data)
                 default:
                     print("unknown method \(method)")
                 }

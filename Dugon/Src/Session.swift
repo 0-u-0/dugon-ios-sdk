@@ -18,7 +18,7 @@ public protocol SessionDelegate:class {
     func onSender(sender:Sender);
 }
 
-public class Session:SocketDelegate{
+public class Session{
     var pub:Bool = false
     var sub:Bool = false
 
@@ -34,8 +34,9 @@ public class Session:SocketDelegate{
     init(factory:RTCPeerConnectionFactory,sessionId:String,tokenId:String, metadata:[String:Any]) {
         self.factory = factory
         let params = ["sessionId":sessionId,"tokenId":tokenId,"metadata":metadata] as [String : Any]
-        self.socket = Socket(url: "ws://192.168.31.254:8080", params: params)
-        self.socket.delegate = self
+        socket = Socket(url: "ws://192.168.31.254:8080", params: params)
+        socket.onConnected = self.onConnected
+        socket.onNotification = self.onNotification
     }
     
     public func connect(pub:Bool=true,sub:Bool=true) {
@@ -153,5 +154,25 @@ public class Session:SocketDelegate{
                 guard let delegate = self.delegate else { return }
                 delegate.onConnected()
         })
+    }
+    
+    func onNotification(event:String,data:[String:Any])  {
+        print("notification: \(event) ")
+          switch event {
+            case "join":
+                break
+            case "leave":
+                break
+            case "publish":
+                break
+            case "unpublish":
+                break
+            case "pause":
+                break
+            case "resume":
+                break
+            default:
+                break
+          }
     }
 }

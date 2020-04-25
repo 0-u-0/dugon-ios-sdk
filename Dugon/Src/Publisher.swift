@@ -18,7 +18,7 @@ class Publisher:Transport{
     
     var isDtls:Bool = false
     
-    //follow sdp stupid mid's order 
+    //follow sdp stupid mid's order
     var usedMids = [String]()
     
     public var onDtls : ((_ algorithm: String, _ hash: String,_ role:String) -> Void)?
@@ -75,7 +75,7 @@ class Publisher:Transport{
                 sender.media?.direction = "inactive"
                 
                 let remoteSdp = self.generateRemoteSdp()
-                print(remoteSdp)
+//                print(remoteSdp)
                 let remoteSdpObj = RTCSessionDescription(type: .answer, sdp: remoteSdp)
                 pc.setRemoteDescription(remoteSdpObj, completionHandler: { (error:Error?) in
                     guard error == nil else {print(error);return}
@@ -112,7 +112,7 @@ class Publisher:Transport{
                     return
                 }
 //                print("local sdp")
-                print(sdp.sdp)
+//                print(sdp.sdp)
                 let session = Sdp.parse(sdpStr: sdp.sdp)
                                 
                 if !self.isDtls {
@@ -140,7 +140,7 @@ class Publisher:Transport{
                 sender.media = mergedMedia
 
                 let remoteSdp = self.generateRemoteSdp()
-                print(remoteSdp)
+//                print(remoteSdp)
                 let remoteSdpObj = RTCSessionDescription(type: .answer, sdp: remoteSdp)
                 self.pc?.setRemoteDescription(remoteSdpObj, completionHandler: { (error:Error?) in
                     guard error == nil else {print(error);return}
