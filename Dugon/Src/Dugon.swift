@@ -46,42 +46,5 @@ public struct Dugon{
         return AudioSource(source: rtcAudioSource, track: audioTrack)
     }
     
-    static public func initTransport(videoSouce:VideoSource,audioSource:AudioSource){
-        /*
-         peerConnectionWithConfiguration:config
-         constraints:constraints
-            delegate:self];
-         **/
-        let config = RTCConfiguration()
-        //        RTCCertificate *pcert = [RTCCertificate generateCertificateWithParams:@{
-        //          @"expires" : @100000,
-        //          @"name" : @"RSASSA-PKCS1-v1_5"
-        //        }];
-        //        config.iceServers = [];
-        //        config.certificate = pcert;
-        config.sdpSemantics = RTCSdpSemantics.unifiedPlan;
-        
-        let constraints = RTCMediaConstraints.init(mandatoryConstraints: nil, optionalConstraints: nil)
-   
-//        let t = Transport()
-//        let pc = factory!.peerConnection(with: config, constraints: constraints, delegate: t)
-//
-//        let initConfig = RTCRtpTransceiverInit()
-//        initConfig.direction = RTCRtpTransceiverDirection.sendOnly
-//
-//        let transceiver =   pc.addTransceiver(with: videoSouce.track, init: initConfig)
-//        let transceiver2 =   pc.addTransceiver(with: audioSource.track, init: initConfig)
-//
-//
-//        let constraints2 = RTCMediaConstraints.init(mandatoryConstraints: nil, optionalConstraints: nil)
-//
-//        pc.offer(for: constraints2) { (sdp, error) in
-//            if(error == nil){
-//                print(sdp!.sdp)
-//               let sdpObj = Sdp.parse(sdpStr: sdp!.sdp)
-//                print(sdpObj.toString())
-//            }
-//        }
-    }
     
 }
