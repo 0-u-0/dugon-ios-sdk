@@ -25,9 +25,9 @@ class Publisher:Transport{
     public var onSender: ((_ sender:Sender)->Void)?
     public var onSenderClosed:((_ senderId:String)->Void)?
     
-    override init(factory: RTCPeerConnectionFactory, id: String, iceCandidate: [[String : Any]], iceParameters: [String : Any], dtlsParameters: [String : Any]) {
+    override init(factory: RTCPeerConnectionFactory, id: String, iceCandidates: [ICECandidate], iceParameters: ICEParameters, dtlsParameters: [String : Any]) {
         
-        super.init(factory: factory, id: id, iceCandidate: iceCandidate, iceParameters: iceParameters, dtlsParameters
+        super.init(factory: factory, id: id, iceCandidates: iceCandidates, iceParameters: iceParameters, dtlsParameters
             : dtlsParameters)
     }
     
@@ -76,8 +76,7 @@ class Publisher:Transport{
                 
                 let remoteSdp = self.generateRemoteSdp()
 //                print(remoteSdp)
-                let remoteSdpObj = RTCSessionDescription(type: .answer, sdp: remoteSdp)
-                pc.setRemoteDescription(remoteSdpObj, completionHandler: { (error:Error?) in
+                pc.setRemoteDescription(remoteSdp, completionHandler: { (error:Error?) in
                     guard error == nil else {print(error);return}
                     guard let onSenderClosed = self.onSenderClosed else { return } //TODO:error
                     onSenderClosed(sender.id!)
@@ -141,8 +140,7 @@ class Publisher:Transport{
 
                 let remoteSdp = self.generateRemoteSdp()
 //                print(remoteSdp)
-                let remoteSdpObj = RTCSessionDescription(type: .answer, sdp: remoteSdp)
-                self.pc?.setRemoteDescription(remoteSdpObj, completionHandler: { (error:Error?) in
+                self.pc?.setRemoteDescription(remoteSdp, completionHandler: { (error:Error?) in
                     guard error == nil else {print(error);return}
                     guard let onSender = self.onSender else { return } //TODO:error
                     onSender(sender)
@@ -153,7 +151,7 @@ class Publisher:Transport{
         }
     }
     
-    func generateRemoteSdp() -> String{
+    func generateRemoteSdp() -> RTCSessionDescription{
         let sdp = Sdp()
         sdp.version = 0
         sdp.origin = "o=- 10000 2 IN IP4 127.0.0.1"
@@ -173,6 +171,6 @@ class Publisher:Transport{
             }
         }
         
-        return sdp.toString()
+        return RTCSessionDescription(type: .answer, sdp: sdp.toString())
     }
 }

@@ -14,3 +14,18 @@ func randomInt(n:Int)-> Int {
     return Int.random(in: floor..<upper)
 }
 
+
+func createByDic<T:Decodable>(type:T.Type,dic:[String:Any]) -> T?{
+    
+    let codecJson = dic.json.data(using: .utf8)!
+    
+    var obj: T?
+    do {
+        obj = try JSONDecoder().decode(T.self, from: codecJson)
+        return obj
+    } catch {
+        print(dic)
+        print("Error took place: \(error.localizedDescription).")
+        return nil
+    }
+}

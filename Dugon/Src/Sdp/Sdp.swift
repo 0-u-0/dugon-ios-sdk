@@ -20,7 +20,7 @@ public class Sdp{
     
     public var fingerprint:Fingerprint?
     public var medias = [Media]()
-    
+    public var iceLite = true
     
     public static func parse(sdpStr:String) -> Sdp {
             //TODO: make separator as parameters
@@ -283,6 +283,10 @@ public class Sdp{
         
         if timing != nil {
             lines.append("t=\(timing!)")
+        }
+        
+        if iceLite {
+            lines.append("a=ice-lite")
         }
         
         if group != nil {

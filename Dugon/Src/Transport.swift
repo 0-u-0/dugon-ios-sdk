@@ -17,15 +17,15 @@ class Transport: NSObject,RTCPeerConnectionDelegate{
     let id:String
     
     let remoteDTLSParameters:[String:Any]
-    let remoteICEParameters:[String:Any]
-    let remoteICECandidates:[[String:Any]]
+    let remoteICEParameters:ICEParameters
+    let remoteICECandidates:[ICECandidate]
     
     let factory:RTCPeerConnectionFactory
     
-    init(factory:RTCPeerConnectionFactory,id:String,iceCandidate:[[String:Any]],iceParameters:[String:Any],dtlsParameters:[String:Any]){
+    init(factory:RTCPeerConnectionFactory,id:String,iceCandidates:[ICECandidate],iceParameters:ICEParameters,dtlsParameters:[String:Any]){
         self.factory = factory
         self.id = id
-        self.remoteICECandidates = iceCandidate
+        self.remoteICECandidates = iceCandidates
         self.remoteICEParameters = iceParameters
         self.remoteDTLSParameters = dtlsParameters
         super.init()

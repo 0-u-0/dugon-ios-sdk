@@ -13,7 +13,7 @@ struct RTX:Codable{
     var ssrc:Int
 }
 
-struct Codec:Codable {
+class Codec:Codable {
     var kind:String
     var payload:Int
     var clockRate:Int
@@ -22,7 +22,8 @@ struct Codec:Codable {
     var codecFullName:String
     var dtx:Bool
     var senderPaused:Bool
-    var reducedSize:Bool = true
+    var reducedSize = true
+    var mux = true
     
     var ssrc:Int?
     var cname:String?
@@ -33,6 +34,24 @@ struct Codec:Codable {
     var extensions:[Extension]
     var parameters:[String:String]
     var rtcpFeedback:[RtcpFeedback]
+    
+    init(kind: String, payload: Int, clockRate: Int, channels: Int, codecName: String, codecFullName: String, dtx: Bool, senderPaused: Bool, ssrc: Int?, cname: String?, mid: String?, rtx: RTX?, extensions: [Extension], parameters: [String:String], rtcpFeedback: [RtcpFeedback]) {
+        self.kind = kind
+        self.payload = payload
+        self.clockRate = clockRate
+        self.channels = channels
+        self.codecName = codecName
+        self.codecFullName = codecFullName
+        self.dtx = dtx
+        self.senderPaused = senderPaused
+        self.ssrc = ssrc
+        self.cname = cname
+        self.mid = mid
+        self.rtx = rtx
+        self.extensions = extensions
+        self.parameters = parameters
+        self.rtcpFeedback = rtcpFeedback
+    }
 
 //    func parameterArray() -> [String]{
 //        var arr = [String]()
@@ -64,18 +83,4 @@ struct Codec:Codable {
        
     }
     
-    static func create(dic:[String:Any]) -> Codec?{
-        let codecJson = dic.json.data(using: .utf8)!
-        
-        var codecCap: Codec?
-        do {
-            codecCap = try JSONDecoder().decode(Codec.self, from: codecJson)
-            return codecCap
-        } catch {
-            print(dic)
-            print("Error took place: \(error.localizedDescription).")
-            return nil
-        }
-        
-    }
 }
