@@ -82,11 +82,17 @@ public struct Extension: Codable {
     public let uri: String
 }
 
+enum MediaRole {
+    case send
+    case recv
+    case undf
+}
+
 public struct Media {
     public var type: String?
     public var port: Int?
     public var mid: String?
-    public var role = ""
+    var role:MediaRole
     // protocol
     public var proto: String?
     public var connection: String?
@@ -123,10 +129,9 @@ public struct Media {
         }
         return false
     }
-    
+    // for sub
     static func create(mid: String, codec: Codec, iceParameters: ICEParameters, iceCandidates: [ICECandidate], msidAppdata: String) -> Media {
-        var media = Media()
-        media.role = "send"
+        var media = Media(role: .send)
         media.type = codec.kind
         media.mid = mid
         media.port = 7
@@ -166,11 +171,11 @@ public struct Media {
         // this will become trackId
         return media
     }
-    
+    // for pub
     func merge(codecCap: Codec, iceParameters: ICEParameters, iceCandidates: [ICECandidate]) -> Media? {
         // extensions
         // rtcpFb
-        var mergedMedia = Media()
+        var mergedMedia = Media(role: .recv)
         
         mergedMedia.type = type
         mergedMedia.proto = proto
@@ -178,7 +183,8 @@ public struct Media {
         mergedMedia.cname = cname
         mergedMedia.connection = "IN IP4 127.0.0.1"
         mergedMedia.mid = mid
-        mergedMedia.ssrc = ssrc
+        //useless
+//        mergedMedia.ssrc = ssrc
         mergedMedia.iceOptions = "renomination"
         
         if let direction = self.direction {
@@ -200,11 +206,18 @@ public struct Media {
             if rtp.codec == codecCap.codecName {
                 if rtp.codec == "H264" {
                     if rtp.fmtp["packetization-mode"] == codecCap.parameters["packetization-mode"], rtp.fmtp["level-asymmetry-allowed"] == codecCap.parameters["level-asymmetry-allowed"], rtp.fmtp["profile-level-id"]![0...3] == codecCap.parameters["profile-level-id"]![0...3] {
-                        mergedMedia.rtps.append(rtp)
+                        
+                        var newRtp = Rtp(payload: rtp.payload, codec: rtp.codec, rate: rtp.rate)
+                        //FIXME : use server fmtp will cause video freeze
+                        newRtp.fmtp = rtp.fmtp
+                        newRtp.rtcpFb = codecCap.rtcpFeedback
                         
                         if rtp.rtx != nil {
+                            newRtp.rtx = rtp.rtx
                             mergedMedia.rtxSsrc = rtxSsrc
                         }
+                        mergedMedia.rtps.append(newRtp)
+
                         
                         break
                     }
@@ -239,7 +252,6 @@ public struct Media {
             mergedMedia.candidates.append(candidate)
         }
         
-        mergedMedia.rtps[0].rtcpFb = codecCap.rtcpFeedback
         
 //        print(mergedMedia.toString())
         
@@ -296,7 +308,7 @@ public struct Media {
             lines.append("a=rtcp:\(rtcp)")
         }
         
-        if role == "send", let msidAppdata = msidAppdata, let cname = cname {
+        if role == .send, let msidAppdata = msidAppdata, let cname = cname {
             lines.append("a=msid:\(cname) \(msidAppdata)")
         }
         
@@ -338,16 +350,18 @@ public struct Media {
             lines.append(rtp.toString())
         }
         
-        if let rtxSsrc = self.rtxSsrc {
-            if let ssrc = self.ssrc {
-                lines.append("a=ssrc-group:FID \(ssrc) \(rtxSsrc)")
-            }
-        }
-        
-        if let ssrc = self.ssrc, let cname = self.cname {
-            lines.append("a=ssrc:\(ssrc) cname:\(cname)")
+        if role == .send {
             if let rtxSsrc = self.rtxSsrc {
-                lines.append("a=ssrc:\(rtxSsrc) cname:\(cname)")
+                if let ssrc = self.ssrc {
+                    lines.append("a=ssrc-group:FID \(ssrc) \(rtxSsrc)")
+                }
+            }
+            
+            if let ssrc = self.ssrc, let cname = self.cname {
+                lines.append("a=ssrc:\(ssrc) cname:\(cname)")
+                if let rtxSsrc = self.rtxSsrc {
+                    lines.append("a=ssrc:\(rtxSsrc) cname:\(cname)")
+                }
             }
         }
 //

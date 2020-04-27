@@ -95,7 +95,7 @@ public class Sdp{
         }
         
         static func handleMedia(lines:[String]) -> Media {
-            var media = Media()
+            var media = Media(role: .undf)
             for line in lines{
                 let type = line[line.startIndex]
                 let value = line[2...]
