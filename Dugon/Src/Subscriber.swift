@@ -20,7 +20,7 @@ class Subscriber: Transport {
     // follow sdp stupid mid's order
     
     public var onDtls: ((_ algorithm: String, _ hash: String, _ role: String) -> Void)?
-    public var onTrack: ((_ track: RTCMediaStreamTrack, _ receiver: Receiver) -> Void)?
+    public var onMedia: ((_ source: MediaSource, _ receiver: Receiver) -> Void)?
     
     override init(factory: RTCPeerConnectionFactory, id: String, iceCandidates: [ICECandidate], iceParameters: ICEParameters, dtlsParameters: [String: Any]) {
         super.init(factory: factory, id: id, iceCandidates: iceCandidates, iceParameters: iceParameters, dtlsParameters:
@@ -38,27 +38,34 @@ class Subscriber: Transport {
     private func _subscribe(receiver: Receiver) {
         guard let pc = pc else { return }
         
-        
         receiver.media.direction = "sendonly"
+//        receiver.media.rtps[0].fmtp["profile-level-id"] = "42e034";
         let remoteSdp = generateRemoteSdp()
         print(remoteSdp.sdp)
         pc.setRemoteDescription(remoteSdp) { error in
             guard error == nil else {
                 // TODO:
+                print(error.debugDescription)
                 return
             }
             let constraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
             pc.answer(for: constraints) { answer, error in
                 if error == nil, let answer = answer {
+                    print(answer.sdp)
                     pc.setLocalDescription(answer) { error in
                         if error != nil {
                             // TODO:
+                            print(error.debugDescription)
                         }
                         if let transceiver = pc.transceivers.first(where: { $0.mid == receiver.mid }) {
                             if let track = transceiver.receiver.track {
-                                guard let onTrack = self.onTrack else { return }
-                            
-                                onTrack(track,receiver)
+                                guard let onMedia = self.onMedia else { return }
+                                if track.kind == "audio", let audioTrack = track as? RTCAudioTrack {
+                                    onMedia(RemoteAudioSource(track: audioTrack), receiver)
+                                } else if track.kind == "video", let videoTrack = track as? RTCVideoTrack {
+                                    onMedia(RemoteVideoSource(track: videoTrack), receiver)
+                                }
+//                                onTrack(track,receiver)
                             }
                         }
                         if !self.isDtls {
@@ -66,8 +73,8 @@ class Subscriber: Transport {
                             let session = Sdp.parse(sdpStr: answer.sdp)
                             let media = session.medias[0]
                             guard let fingerprint = media.fingerprint else { return }
-                            
-                            guard let onDtls = self.onDtls else { return } //TODO:error
+
+                            guard let onDtls = self.onDtls else { return } // TODO: error
                             onDtls(fingerprint.algorithm, fingerprint.hash, "active")
                         }
                     }

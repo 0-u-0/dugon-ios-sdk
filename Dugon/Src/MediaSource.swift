@@ -9,18 +9,55 @@
 import Foundation
 import WebRTC
 
+public enum MediaType {
+    case video
+    case audio
 
-//interface
-public class MediaSource {
-    let track:RTCMediaStreamTrack
-    let source:RTCMediaSource
-    var type:String{
-        return track.kind
+    init(type: String) {
+        switch type {
+        case "video":
+            self = .video
+        case "audio":
+            self = .audio
+        default:
+            self = .video
+        }
     }
-    
-    init(track:RTCMediaStreamTrack,source:RTCMediaSource) {
+}
+
+// interface
+public protocol MediaSource {
+    var mediaTrack: RTCMediaStreamTrack { get }
+}
+
+extension MediaSource {
+    public var type: MediaType {
+        return MediaType(type: mediaTrack.kind)
+    }
+}
+
+public class AudioSource: MediaSource {
+    public var mediaTrack: RTCMediaStreamTrack {
+        return track
+    }
+
+    let track: RTCAudioTrack
+    let source: RTCAudioSource
+    init(track: RTCAudioTrack) {
         self.track = track
-        self.source = source
+        self.source = track.source
+    }
+}
+
+public class VideoSource: MediaSource {
+    public var mediaTrack: RTCMediaStreamTrack {
+        return track
     }
 
+    let track: RTCVideoTrack
+    let source: RTCVideoSource
+    init(track: RTCVideoTrack) {
+        self.track = track
+        self.source = track.source
+    }
 }

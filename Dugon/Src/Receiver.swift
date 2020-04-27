@@ -14,7 +14,8 @@ public class Receiver {
     public let senderId:String
     public let tokenId:String
     public let metadata:[String:String]
-    let media:Media
+    
+    var media:Media
     let codec:Codec
 
     public var available = false

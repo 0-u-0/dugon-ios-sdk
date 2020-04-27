@@ -24,7 +24,7 @@ public protocol SessionDelegate: class {
     func onIn(tokenId: String, metadata: [String: String])
     func onOut(tokenId: String)
     func onReceiver(receiver: Receiver)
-    
+    func onMedia(source: MediaSource, receiver: Receiver)
 }
 
 public class Session {
@@ -68,7 +68,7 @@ public class Session {
     
     public func publish(source: MediaSource) {
         var codec: String
-        if source.type == "audio" {
+        if source.type == .audio {
             codec = DEFAULT_AUDIO_CODEC
         } else {
             codec = DEFAULT_VIDEO_CODEC
@@ -145,9 +145,9 @@ public class Session {
         } else if role == "sub" {
             // TODO:
             subscriber = Subscriber(factory: factory, id: transportId, iceCandidates: candidates, iceParameters: iceParameters, dtlsParameters: dtlsParameters)
-            subscriber!.onTrack = { (track, receiver) -> () in
-                //
-                print("ontrack")
+            subscriber!.onMedia = { (source, receiver) -> () in
+                guard let delegate = self.delegate else { return }
+                delegate.onMedia(source: source, receiver: receiver)
             }
             
             subscriber!.onDtls = { (algorithm, hash, role) -> () in
@@ -167,7 +167,6 @@ public class Session {
             }
             
             subscriber!.initi()
-
         }
     }
     

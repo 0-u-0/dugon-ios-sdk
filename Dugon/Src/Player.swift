@@ -9,13 +9,39 @@
 import Foundation
 import WebRTC
 
-public struct Player{
-    public var view:RTCCameraPreviewView
+typealias LocalVideoView = RTCCameraPreviewView
+// TODO: RTCMTLVideoView
+typealias RemoteVieoView = RTCMTLVideoView
 
-    public init(){
-        self.view = RTCCameraPreviewView(frame: CGRect.zero)
+public enum PlayerType {
+    case local
+    case remote
+    // enumeration definition goes here
+}
 
-        var localVideoFrame = CGRect.init(x:0, y:0, width:160, height:160)        
-        view.frame = localVideoFrame;
+public class Player:RTCVideoViewDelegate {
+    
+    public var view: UIView?
+
+    public let type: PlayerType
+
+    public init(type: PlayerType) {
+        self.type = type
+    }
+    
+    public func initView(x:Int,y:Int,width:Int,height:Int){
+        switch type {
+        case .local:
+            self.view = LocalVideoView(frame: CGRect(x: x, y: y, width: width, height: height))
+        case .remote:
+//            let remoteView = RemoteVieoView(frame: CGRect(x: x, y: y, width: width, height: height))
+//            remoteView.delegate = self
+//            self.view = remoteView
+            self.view = RemoteVieoView(frame: CGRect(x: x, y: y, width: width, height: height))
+        }
+    }
+    
+    public func videoView(_ videoView: RTCVideoRenderer, didChangeVideoSize size: CGSize) {
+        
     }
 }

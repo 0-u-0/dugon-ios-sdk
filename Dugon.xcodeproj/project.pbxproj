@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B36C2F38245568F300B99EFF /* RemoteAudioSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36C2F37245568F300B99EFF /* RemoteAudioSource.swift */; };
+		B36C2F3A2455690300B99EFF /* RemoteVideoSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36C2F392455690300B99EFF /* RemoteVideoSource.swift */; };
 		B3A419602446D137009066A7 /* Dugon.h in Headers */ = {isa = PBXBuildFile; fileRef = B3A4195E2446D137009066A7 /* Dugon.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B3A41B0D2446D48E009066A7 /* Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41AB22446D48D009066A7 /* Transport.swift */; };
 		B3A41B0E2446D48E009066A7 /* Dugon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41AB32446D48D009066A7 /* Dugon.swift */; };
 		B3A41B0F2446D48E009066A7 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41AB42446D48D009066A7 /* Socket.swift */; };
 		B3A41BE92446F1FE009066A7 /* VideoSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41BE82446F1FE009066A7 /* VideoSource.swift */; };
-		B3A41BEB2446F211009066A7 /* AudioSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41BEA2446F211009066A7 /* AudioSource.swift */; };
+		B3A41BEB2446F211009066A7 /* LocalAudioSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41BEA2446F211009066A7 /* LocalAudioSource.swift */; };
 		B3A41BED2446FD8D009066A7 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41BEC2446FD8D009066A7 /* Player.swift */; };
 		B3A41BF024481A46009066A7 /* WebRTC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3A41BEE24481A44009066A7 /* WebRTC.framework */; };
 		B3A41BF124481A46009066A7 /* WebRTC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B3A41BEE24481A44009066A7 /* WebRTC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -27,7 +29,7 @@
 		B3EB495B244F29350024513D /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EB4958244F29350024513D /* Media.swift */; };
 		B3EB495D244F29350024513D /* Sdp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EB495A244F29350024513D /* Sdp.swift */; };
 		B3EB495F244F2B0A0024513D /* Codec.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EB495E244F2B0A0024513D /* Codec.swift */; };
-		B3EB4961244F4D460024513D /* CodeExtensioin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EB4960244F4D460024513D /* CodeExtensioin.swift */; };
+		B3EB4961244F4D460024513D /* String+Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EB4960244F4D460024513D /* String+Dictionary.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +47,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B36C2F37245568F300B99EFF /* RemoteAudioSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAudioSource.swift; sourceTree = "<group>"; };
+		B36C2F392455690300B99EFF /* RemoteVideoSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteVideoSource.swift; sourceTree = "<group>"; };
 		B3A4195B2446D137009066A7 /* Dugon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Dugon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3A4195E2446D137009066A7 /* Dugon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Dugon.h; sourceTree = "<group>"; };
 		B3A4195F2446D137009066A7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -52,7 +56,7 @@
 		B3A41AB32446D48D009066A7 /* Dugon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dugon.swift; sourceTree = "<group>"; };
 		B3A41AB42446D48D009066A7 /* Socket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
 		B3A41BE82446F1FE009066A7 /* VideoSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSource.swift; sourceTree = "<group>"; };
-		B3A41BEA2446F211009066A7 /* AudioSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSource.swift; sourceTree = "<group>"; };
+		B3A41BEA2446F211009066A7 /* LocalAudioSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAudioSource.swift; sourceTree = "<group>"; };
 		B3A41BEC2446FD8D009066A7 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		B3A41BEE24481A44009066A7 /* WebRTC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebRTC.framework; sourceTree = "<group>"; };
 		B3CDC8C42454641000635A00 /* Receiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Receiver.swift; sourceTree = "<group>"; };
@@ -65,7 +69,7 @@
 		B3EB4958244F29350024513D /* Media.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
 		B3EB495A244F29350024513D /* Sdp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sdp.swift; sourceTree = "<group>"; };
 		B3EB495E244F2B0A0024513D /* Codec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Codec.swift; sourceTree = "<group>"; };
-		B3EB4960244F4D460024513D /* CodeExtensioin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeExtensioin.swift; sourceTree = "<group>"; };
+		B3EB4960244F4D460024513D /* String+Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Dictionary.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +85,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B36C2F3B24556F2E00B99EFF /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B3EB4960244F4D460024513D /* String+Dictionary.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		B3A419512446D137009066A7 = {
 			isa = PBXGroup;
 			children = (
@@ -111,22 +123,24 @@
 		B3A41AB12446D48D009066A7 /* Src */ = {
 			isa = PBXGroup;
 			children = (
+				B36C2F3B24556F2E00B99EFF /* Extensions */,
 				B3EB4957244F29260024513D /* Sdp */,
 				B3A41AB32446D48D009066A7 /* Dugon.swift */,
 				B3A41AB22446D48D009066A7 /* Transport.swift */,
 				B3A41AB42446D48D009066A7 /* Socket.swift */,
 				B3A41BE82446F1FE009066A7 /* VideoSource.swift */,
-				B3A41BEA2446F211009066A7 /* AudioSource.swift */,
+				B3A41BEA2446F211009066A7 /* LocalAudioSource.swift */,
+				B3EB4953244EE6AC0024513D /* MediaSource.swift */,
 				B3A41BEC2446FD8D009066A7 /* Player.swift */,
 				B3EB494A244DDFE60024513D /* Session.swift */,
 				B3EB494D244DEC5C0024513D /* Utils.swift */,
 				B3EB494F244ED21E0024513D /* Publisher.swift */,
 				B3EB4951244ED2290024513D /* Subscriber.swift */,
-				B3EB4953244EE6AC0024513D /* MediaSource.swift */,
 				B3EB4955244EEA260024513D /* Sender.swift */,
 				B3EB495E244F2B0A0024513D /* Codec.swift */,
-				B3EB4960244F4D460024513D /* CodeExtensioin.swift */,
 				B3CDC8C42454641000635A00 /* Receiver.swift */,
+				B36C2F37245568F300B99EFF /* RemoteAudioSource.swift */,
+				B36C2F392455690300B99EFF /* RemoteVideoSource.swift */,
 			);
 			path = Src;
 			sourceTree = "<group>";
@@ -236,21 +250,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3EB4950244ED21E0024513D /* Publisher.swift in Sources */,
-				B3EB4961244F4D460024513D /* CodeExtensioin.swift in Sources */,
+				B3EB4961244F4D460024513D /* String+Dictionary.swift in Sources */,
 				B3EB494B244DDFE60024513D /* Session.swift in Sources */,
 				B3EB495F244F2B0A0024513D /* Codec.swift in Sources */,
+				B36C2F3A2455690300B99EFF /* RemoteVideoSource.swift in Sources */,
 				B3A41BE92446F1FE009066A7 /* VideoSource.swift in Sources */,
 				B3A41B0D2446D48E009066A7 /* Transport.swift in Sources */,
 				B3EB4956244EEA260024513D /* Sender.swift in Sources */,
 				B3EB495D244F29350024513D /* Sdp.swift in Sources */,
 				B3EB4954244EE6AC0024513D /* MediaSource.swift in Sources */,
+				B36C2F38245568F300B99EFF /* RemoteAudioSource.swift in Sources */,
 				B3A41B0E2446D48E009066A7 /* Dugon.swift in Sources */,
 				B3A41B0F2446D48E009066A7 /* Socket.swift in Sources */,
 				B3A41BED2446FD8D009066A7 /* Player.swift in Sources */,
 				B3EB4952244ED2290024513D /* Subscriber.swift in Sources */,
 				B3CDC8C52454641000635A00 /* Receiver.swift in Sources */,
 				B3EB495B244F29350024513D /* Media.swift in Sources */,
-				B3A41BEB2446F211009066A7 /* AudioSource.swift in Sources */,
+				B3A41BEB2446F211009066A7 /* LocalAudioSource.swift in Sources */,
 				B3EB494E244DEC5C0024513D /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

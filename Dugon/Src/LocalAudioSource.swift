@@ -9,9 +9,4 @@
 import Foundation
 import WebRTC
 
-public class AudioSource:MediaSource{
-        
-    init(source:RTCAudioSource,track:RTCAudioTrack) {
-        super.init(track: track, source: source)
-    }
-}
+public class LocalAudioSource: AudioSource {}

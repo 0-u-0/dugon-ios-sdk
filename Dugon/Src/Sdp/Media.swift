@@ -23,29 +23,39 @@ struct ICECandidate: Codable {
 
 public struct Rtp {
     public let payload: Int
-    public var codec: String?
-    public var rate: Int?
-    public var rtx: Int?
-    
+    public var codec: String
+    public var rate: Int
     public var channels: Int = 1
     public var rtcpFb = [RtcpFeedback]()
     public var fmtp = [String: String]()
     
+    public var rtx: Int? // payload
+    
     public func toString() -> String {
         var lines = [String]()
         if channels == 1 {
-            lines.append("a=rtpmap:\(payload) \(codec!)/\(rate!)")
+            lines.append("a=rtpmap:\(payload) \(codec)/\(rate)")
         } else {
-            lines.append("a=rtpmap:\(payload) \(codec!)/\(rate!)/\(channels)")
+            lines.append("a=rtpmap:\(payload) \(codec)/\(rate)/\(channels)")
         }
+        if let rtx = rtx {
+            lines.append("a=rtpmap:\(rtx) rtx/\(rate)")
+        }
+        
+        if fmtp.count > 1{
+            let config = fmtp.map { "\($0)=\($1)" }.joined(separator: ";")
+            lines.append("a=fmtp:\(payload) \(config)")
+        }
+
         
         for rf in rtcpFb {
             let r = "a=rtcp-fb:\(payload) \(rf.type) \(rf.parameter)".trimmingCharacters(in: .whitespacesAndNewlines)
             lines.append(r)
         }
         
-        let config = fmtp.map { "\($0)=\($1)" }.joined(separator: ";")
-        lines.append("a=fmtp:\(payload) \(config)")
+        if let rtx = rtx {
+            lines.append("a=fmtp:\(rtx) apt=\(payload)")
+        }
         
         let rtpSdp = lines.joined(separator: "\n")
         return rtpSdp
@@ -72,7 +82,7 @@ public struct Extension: Codable {
     public let uri: String
 }
 
-public class Media {
+public struct Media {
     public var type: String?
     public var port: Int?
     public var mid: String?
@@ -115,7 +125,7 @@ public class Media {
     }
     
     static func create(mid: String, codec: Codec, iceParameters: ICEParameters, iceCandidates: [ICECandidate], msidAppdata: String) -> Media {
-        let media = Media()
+        var media = Media()
         media.role = "send"
         media.type = codec.kind
         media.mid = mid
@@ -138,11 +148,13 @@ public class Media {
         // https://tools.ietf.org/html/draft-ietf-mmusic-msid-17#page-5
         media.msidAppdata = msidAppdata
         
-        var rtp = Rtp(payload: codec.payload)
-        rtp.codec = codec.codecName
-        rtp.rate = codec.clockRate
-        rtp.channels = codec.channels
-        rtp.fmtp = codec.parameters
+        var rtp = Rtp(payload: codec.payload, codec: codec.codecName, rate: codec.clockRate, channels: codec.channels)
+        if codec.kind == "audio"{
+            rtp.fmtp = codec.parameters
+        }
+//        rtp.fmtp["level-asymmetry-allowed"] = "1"
+//        rtp.fmtp["profile-level-id"] = "42e01f"
+
         rtp.rtcpFb = codec.rtcpFeedback
         
         if let rtx = codec.rtx {
@@ -158,7 +170,7 @@ public class Media {
     func merge(codecCap: Codec, iceParameters: ICEParameters, iceCandidates: [ICECandidate]) -> Media? {
         // extensions
         // rtcpFb
-        let mergedMedia = Media()
+        var mergedMedia = Media()
         
         mergedMedia.type = type
         mergedMedia.proto = proto
@@ -185,9 +197,8 @@ public class Media {
         mergedMedia.icePwd = iceParameters.password
         
         for rtp in rtps {
-            guard let codec = rtp.codec else { continue }
-            if codec == codecCap.codecName {
-                if codec == "H264" {
+            if rtp.codec == codecCap.codecName {
+                if rtp.codec == "H264" {
                     if rtp.fmtp["packetization-mode"] == codecCap.parameters["packetization-mode"], rtp.fmtp["level-asymmetry-allowed"] == codecCap.parameters["level-asymmetry-allowed"], rtp.fmtp["profile-level-id"]![0...3] == codecCap.parameters["profile-level-id"]![0...3] {
                         mergedMedia.rtps.append(rtp)
                         
@@ -246,8 +257,8 @@ public class Media {
             rtx = nil
         }
         
-        if let type = self.type, let clockRate = rtp.rate, let codecName = rtp.codec {
-            return Codec(kind: type, payload: rtp.payload, clockRate: clockRate, channels: rtp.channels, codecName: codecName, codecFullName: codecName, dtx: false, senderPaused: false, ssrc: ssrc, cname: cname, mid: mid, rtx: rtx, extensions: extensions, parameters: rtp.fmtp, rtcpFeedback: rtp.rtcpFb)
+        if let type = self.type {
+            return Codec(kind: type, payload: rtp.payload, clockRate: rtp.rate, channels: rtp.channels, codecName: rtp.codec, codecFullName: rtp.codec, dtx: false, senderPaused: false, ssrc: ssrc, cname: cname, mid: mid, rtx: rtx, extensions: extensions, parameters: rtp.fmtp, rtcpFeedback: rtp.rtcpFb)
         }
         return nil
     }
@@ -261,7 +272,7 @@ public class Media {
          
          */
         var lines = [String]()
-        let payloads = rtps.map { String($0.payload) }
+        var payloads = rtps.map { String($0.payload) }
         
         if let type = type, let port1 = port, let proto = proto {
             var port: Int
@@ -269,6 +280,10 @@ public class Media {
                 port = port1
             } else {
                 port = 0
+            }
+            
+            if rtxSsrc != nil {
+                payloads.append(String(rtps[0].rtx!))
             }
             lines.append("m=\(type) \(port) \(proto) \(payloads.joined(separator: " "))")
         }
@@ -281,7 +296,7 @@ public class Media {
             lines.append("a=rtcp:\(rtcp)")
         }
         
-        if role == "send", let msidAppdata = msidAppdata,let cname = cname {
+        if role == "send", let msidAppdata = msidAppdata, let cname = cname {
             lines.append("a=msid:\(cname) \(msidAppdata)")
         }
         
@@ -292,11 +307,7 @@ public class Media {
         if let icePwd = icePwd {
             lines.append("a=ice-pwd:\(icePwd)")
         }
-        
-        if iceOptions != nil {
-            lines.append("a=ice-options:\(iceOptions!)")
-        }
-        
+
         if fingerprint != nil {
             lines.append("a=fingerprint:\(fingerprint!.algorithm) \(fingerprint!.hash)")
         }
@@ -335,6 +346,9 @@ public class Media {
         
         if let ssrc = self.ssrc, let cname = self.cname {
             lines.append("a=ssrc:\(ssrc) cname:\(cname)")
+            if let rtxSsrc = self.rtxSsrc {
+                lines.append("a=ssrc:\(rtxSsrc) cname:\(cname)")
+            }
         }
 //
 //        for ssrc in ssrcs {
@@ -354,6 +368,12 @@ public class Media {
         if rtcpRsize {
             lines.append("a=rtcp-rsize")
         }
+        
+        
+        if iceOptions != nil {
+            lines.append("a=ice-options:\(iceOptions!)")
+        }
+        
         
         let mediaSdp = lines.joined(separator: "\n")
         return mediaSdp

@@ -40,8 +40,6 @@ public class Sender{
     }
     
     func disableMedia() {
-        if let media = media {
-            media.direction = "inactive"
-        }
+        media?.direction = "inactive"
     }
 }

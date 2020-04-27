@@ -27,8 +27,8 @@ public struct Format:Hashable{
 }
 
 
-public class VideoSource:MediaSource{
- 
+public class LocalVideoSource:VideoSource{
+    
     
     private static let FramerateLimit = 30.0
     
@@ -79,9 +79,9 @@ public class VideoSource:MediaSource{
     }
     
     
-    init(source:RTCVideoSource,track:RTCVideoTrack){
-        self.capturer =  RTCCameraVideoCapturer.init(delegate: source)
-        super.init(track: track, source: source)
+    override init(track:RTCVideoTrack){
+        self.capturer =  RTCCameraVideoCapturer.init(delegate: track.source)
+        super.init(track: track)
     }
     
     public func play(player:Player,position:CameraPosition,format:Format){
@@ -101,7 +101,9 @@ public class VideoSource:MediaSource{
 
         capturer!.startCapture(with: mydevice, format: selectedFormat, fps: format.fps)
 
-        player.view.captureSession = capturer!.captureSession
+        if let view = player.view  as? LocalVideoView {
+            view.captureSession = capturer!.captureSession
+        }
     }
     
     func getAVFormat(device:AVCaptureDevice,width:Int,height:Int) -> AVCaptureDevice.Format{

@@ -8,20 +8,6 @@
 
 import Foundation
 
-extension Array where Element == String {
-    public static func == (lhs: Array<String>, rhs: Array<String>) -> Bool {
-        var match = true
-        for l in lhs {
-           match = rhs.contains(l) && match
-        }
-
-        for r in rhs {
-           match = lhs.contains(r) && match
-        }
-        return match
-    }
-}
-
 extension String {
     subscript (i: Int) -> String {
         return String(self[self.index(self.startIndex, offsetBy: i)])
@@ -73,29 +59,6 @@ extension String {
     }
 }
 
-extension Dictionary {
-
-    var json: String {
-        let invalidJson = "Not a valid JSON"
-        do {
-            if #available(iOS 13.0, macOS 10.15, *) {
-                let jsonData = try JSONSerialization.data(withJSONObject: self, options: [.prettyPrinted, .withoutEscapingSlashes])
-                return String(bytes: jsonData, encoding: String.Encoding.utf8) ?? invalidJson
-
-            } else {
-                let jsonData = try JSONSerialization.data(withJSONObject: self, options: [.prettyPrinted])
-                let jsonStr = String(bytes: jsonData, encoding: String.Encoding.utf8)!
-                return jsonStr.replacingOccurrences(of: "\\/", with: "/")
-            }
-  
-        } catch {
-            return invalidJson
-        }
-    }
-    
-
-}
-
 
 extension String {
     func matchingStrings(regex: String) -> [String] {
@@ -122,4 +85,27 @@ extension String {
         return split(separator:separator,omittingEmptySubsequences:true).map{String($0)}
     }
     
+}
+
+extension Dictionary {
+
+    var json: String {
+        let invalidJson = "Not a valid JSON"
+        do {
+            if #available(iOS 13.0, macOS 10.15, *) {
+                let jsonData = try JSONSerialization.data(withJSONObject: self, options: [.prettyPrinted, .withoutEscapingSlashes])
+                return String(bytes: jsonData, encoding: String.Encoding.utf8) ?? invalidJson
+
+            } else {
+                let jsonData = try JSONSerialization.data(withJSONObject: self, options: [.prettyPrinted])
+                let jsonStr = String(bytes: jsonData, encoding: String.Encoding.utf8)!
+                return jsonStr.replacingOccurrences(of: "\\/", with: "/")
+            }
+  
+        } catch {
+            return invalidJson
+        }
+    }
+    
+
 }

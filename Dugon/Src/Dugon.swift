@@ -9,42 +9,50 @@
 import Foundation
 import WebRTC
 
-public struct Dugon{
-    static private var encoderFactory:RTCDefaultVideoEncoderFactory?
-    static private var decoderFactory:RTCDefaultVideoDecoderFactory?
-    static private var factory:RTCPeerConnectionFactory?
+public struct Dugon {
+//    private static var encoderFactory: RTCDefaultVideoEncoderFactory?
+//    private static var decoderFactory: RTCDefaultVideoDecoderFactory?
+    private static var factory: RTCPeerConnectionFactory?
     
-    //TODO: add init check
-    static public func initialize(){
+    // TODO: add init check
+    public static func initialize() {
         RTCInitializeSSL()
         RTCEnableMetrics()
         
-        decoderFactory = RTCDefaultVideoDecoderFactory();
-        encoderFactory = RTCDefaultVideoEncoderFactory();
-        factory = RTCPeerConnectionFactory.init(encoderFactory: encoderFactory, decoderFactory: decoderFactory)
+       let  decoderFactory = RTCDefaultVideoDecoderFactory()
+       let  encoderFactory = RTCDefaultVideoEncoderFactory()
+        
+//        RTCDefaultVideoEncoderFactory.supportedCodecs().map { (info) -> Void in
+//
+//            print(info.parameters)
+//        }
+        
+//        RTCDefaultVideoDecoderFactory.supportedCodecs().map { (info) -> Void in
+//        
+//                    print(info.parameters)
+//        }
+        factory = RTCPeerConnectionFactory(encoderFactory: encoderFactory, decoderFactory: decoderFactory)
     }
     
-    static public func createSession(sessionId:String,tokenId:String,metadata:[String:Any]) -> Session?{
-        guard let factory = factory else {return nil}
-        return Session(factory:factory ,sessionId: sessionId, tokenId: tokenId, metadata: metadata)
+    public static func createSession(sessionId: String, tokenId: String, metadata: [String: Any]) -> Session? {
+        guard let factory = factory else { return nil }
+        return Session(factory: factory, sessionId: sessionId, tokenId: tokenId, metadata: metadata)
     }
     
-    static public func createVideoSource()  -> VideoSource? {
-        guard let factory = factory else {return nil}
+    public static func createVideoSource() -> LocalVideoSource? {
+        guard let factory = factory else { return nil }
         
         let rtcSource = factory.videoSource()
         let videoTrack = factory.videoTrack(with: rtcSource, trackId: "video")
-        return VideoSource(source: rtcSource, track: videoTrack)
+        return LocalVideoSource(track: videoTrack)
     }
     
-    static public func createAudioSource() -> AudioSource?{
-        guard let factory = factory else {return nil}
-
-        let constraints = RTCMediaConstraints.init(mandatoryConstraints: nil, optionalConstraints: nil)
+    public static func createAudioSource() -> LocalAudioSource? {
+        guard let factory = factory else { return nil }
+        
+        let constraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
         let rtcAudioSource = factory.audioSource(with: constraints)
         let audioTrack = factory.audioTrack(with: rtcAudioSource, trackId: "audio")
-        return AudioSource(source: rtcAudioSource, track: audioTrack)
+        return LocalAudioSource(track: audioTrack)
     }
-    
-    
 }

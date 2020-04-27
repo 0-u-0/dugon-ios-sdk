@@ -95,7 +95,7 @@ public class Sdp{
         }
         
         static func handleMedia(lines:[String]) -> Media {
-            let media = Media()
+            var media = Media()
             for line in lines{
                 let type = line[line.startIndex]
                 let value = line[2...]
@@ -110,11 +110,11 @@ public class Sdp{
                         media.port = Int(result[2])
                         media.proto = result[3]
                         //FIXME: use array
-                        let payloads = result[4].components(separatedBy: " ")
-                        for payload in payloads {
-                            let rtp = Rtp(payload: Int(payload)!)
-                            media.rtps.append(rtp)
-                        }
+//                        let payloads = result[4].components(separatedBy: " ")
+//                        for payload in payloads {
+//                            let rtp = Rtp(payload: Int(payload)!)
+//                            media.rtps.append(rtp)
+//                        }
                     }
                 case "c":
                     media.connection = value
@@ -171,13 +171,12 @@ public class Sdp{
                                 if result[2] == "rtx" {
                                     media.rtxPayloads.append(payload)
                                 }else{
-                                    if let index = media.getRtpIndex(payload: payload)  {
-                                        media.rtps[index].codec = result[2]
-                                        media.rtps[index].rate = Int(result[3])
-                                        if result.count == 5 {
-                                            media.rtps[index].channels = Int(result[4])!
-                                        }
+                                    var rtp = Rtp(payload: payload,codec: result[2],rate:Int(result[3])! )
+                                    if result.count == 5 {
+                                        rtp.channels = Int(result[4])!
                                     }
+                                    media.rtps.append(rtp)
+                                    
                                 }
                             }
                         case "rtcp-fb":

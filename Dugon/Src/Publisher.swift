@@ -91,7 +91,7 @@ class Publisher:Transport{
         let initConfig = RTCRtpTransceiverInit()
         initConfig.direction = RTCRtpTransceiverDirection.sendOnly
 
-        let transceiver =   pc.addTransceiver(with: source.track, init: initConfig)
+        let transceiver = pc.addTransceiver(with: source.mediaTrack, init: initConfig)
         let sender = Sender(transceiver: transceiver)
         self.senders.append(sender)
 
