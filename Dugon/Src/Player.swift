@@ -10,7 +10,12 @@ import Foundation
 import WebRTC
 
 typealias LocalVideoView = RTCCameraPreviewView
+
+#if RTC_SUPPORTS_METAL
 typealias RemoteVieoView = RTCMTLVideoView
+#else
+typealias RemoteVieoView = RTCEAGLVideoView
+#endif
 
 public enum PlayerType {
     case local
