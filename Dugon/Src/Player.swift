@@ -23,7 +23,7 @@ public enum PlayerType {
     // enumeration definition goes here
 }
 
-public class Player {
+public class Player: RTCVideoViewDelegate {
     public var view: UIView
 
     public let type: PlayerType
@@ -37,6 +37,21 @@ public class Player {
             self.view = LocalVideoView(frame: frame)
         case .remote:
             self.view = RemoteVieoView(frame: frame)
+            #if !RTC_SUPPORTS_METAL
+            if let v = self.view as? RTCEAGLVideoView {
+                v.delegate = self
+            }
+            #endif
+        }
+    }
+    
+    public func videoView(_ videoView: RTCVideoRenderer, didChangeVideoSize size: CGSize) {
+        //TODO: save size
+        //        if (videoView == _remoteVideoView) {
+        //          _remoteVideoSize = size;
+        //        }
+        if let v = self.view as? RTCEAGLVideoView {
+            v.setNeedsLayout()
         }
     }
 }

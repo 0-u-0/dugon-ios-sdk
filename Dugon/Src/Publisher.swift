@@ -23,7 +23,7 @@ class Publisher:Transport{
     
     public var onDtls : ((_ algorithm: String, _ hash: String,_ role:String) -> Void)?
     public var onSender: ((_ sender:Sender)->Void)?
-    public var onSenderClosed:((_ senderId:String)->Void)?
+    public var onUnpublished:((_ senderId:String)->Void)?
     
     override init(factory: RTCPeerConnectionFactory, id: String, iceCandidates: [ICECandidate], iceParameters: ICEParameters, dtlsParameters: [String : Any]) {
         
@@ -78,8 +78,8 @@ class Publisher:Transport{
 //                print(remoteSdp)
                 pc.setRemoteDescription(remoteSdp, completionHandler: { (error:Error?) in
                     guard error == nil else {print(error);return}
-                    guard let onSenderClosed = self.onSenderClosed else { return } //TODO:error
-                    onSenderClosed(sender.id!)
+                    guard let onUnpublished = self.onUnpublished else { return } //TODO:error
+                    onUnpublished(sender.id!)
                 })
             }
         }

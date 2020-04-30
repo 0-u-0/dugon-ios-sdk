@@ -13,7 +13,7 @@
 		B3A41B0D2446D48E009066A7 /* Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41AB22446D48D009066A7 /* Transport.swift */; };
 		B3A41B0E2446D48E009066A7 /* Dugon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41AB32446D48D009066A7 /* Dugon.swift */; };
 		B3A41B0F2446D48E009066A7 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41AB42446D48D009066A7 /* Socket.swift */; };
-		B3A41BE92446F1FE009066A7 /* VideoSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41BE82446F1FE009066A7 /* VideoSource.swift */; };
+		B3A41BE92446F1FE009066A7 /* LocalVideoSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41BE82446F1FE009066A7 /* LocalVideoSource.swift */; };
 		B3A41BEB2446F211009066A7 /* LocalAudioSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41BEA2446F211009066A7 /* LocalAudioSource.swift */; };
 		B3A41BED2446FD8D009066A7 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41BEC2446FD8D009066A7 /* Player.swift */; };
 		B3A41BF024481A46009066A7 /* WebRTC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3A41BEE24481A44009066A7 /* WebRTC.framework */; };
@@ -55,7 +55,7 @@
 		B3A41AB22446D48D009066A7 /* Transport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transport.swift; sourceTree = "<group>"; };
 		B3A41AB32446D48D009066A7 /* Dugon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dugon.swift; sourceTree = "<group>"; };
 		B3A41AB42446D48D009066A7 /* Socket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
-		B3A41BE82446F1FE009066A7 /* VideoSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSource.swift; sourceTree = "<group>"; };
+		B3A41BE82446F1FE009066A7 /* LocalVideoSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalVideoSource.swift; sourceTree = "<group>"; };
 		B3A41BEA2446F211009066A7 /* LocalAudioSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAudioSource.swift; sourceTree = "<group>"; };
 		B3A41BEC2446FD8D009066A7 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		B3A41BEE24481A44009066A7 /* WebRTC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebRTC.framework; sourceTree = "<group>"; };
@@ -128,7 +128,7 @@
 				B3A41AB32446D48D009066A7 /* Dugon.swift */,
 				B3A41AB22446D48D009066A7 /* Transport.swift */,
 				B3A41AB42446D48D009066A7 /* Socket.swift */,
-				B3A41BE82446F1FE009066A7 /* VideoSource.swift */,
+				B3A41BE82446F1FE009066A7 /* LocalVideoSource.swift */,
 				B3A41BEA2446F211009066A7 /* LocalAudioSource.swift */,
 				B3EB4953244EE6AC0024513D /* MediaSource.swift */,
 				B3A41BEC2446FD8D009066A7 /* Player.swift */,
@@ -254,7 +254,7 @@
 				B3EB494B244DDFE60024513D /* Session.swift in Sources */,
 				B3EB495F244F2B0A0024513D /* Codec.swift in Sources */,
 				B36C2F3A2455690300B99EFF /* RemoteVideoSource.swift in Sources */,
-				B3A41BE92446F1FE009066A7 /* VideoSource.swift in Sources */,
+				B3A41BE92446F1FE009066A7 /* LocalVideoSource.swift in Sources */,
 				B3A41B0D2446D48E009066A7 /* Transport.swift in Sources */,
 				B3EB4956244EEA260024513D /* Sender.swift in Sources */,
 				B3EB495D244F29350024513D /* Sdp.swift in Sources */,

@@ -25,6 +25,7 @@ public protocol SessionDelegate: class {
     func onOut(tokenId: String)
     func onReceiver(receiver: Receiver)
     func onMedia(source: MediaSource, receiver: Receiver)
+    func onUnsubscribed(receiver: Receiver)
 }
 
 public class Session {
@@ -86,6 +87,11 @@ public class Session {
         subscriber.subscribe(receiverId: receiverId)
     }
     
+    public func unsubscribe(receiverId: String) {
+        guard let subscriber = subscriber else { return }
+        subscriber.unsubscriber(receiverId: receiverId)
+    }
+    
     private func initTransport(role: String, parameters: [String: Any]) {
         guard let transportId = parameters["id"] as? String else { return }
         guard let iceParam = parameters["iceParameters"] as? [String: Any] else { return }
@@ -131,7 +137,7 @@ public class Session {
                 }
             }
             
-            publisher!.onSenderClosed = { (senderId) -> () in
+            publisher!.onUnpublished = { (senderId) -> () in
                 self.socket.request(event: "unpublish", data: [
                     "transportId": self.publisher!.id,
                     "senderId": senderId,
@@ -163,6 +169,16 @@ public class Session {
                     ]
                 ]], callback: { (_: [String: Any]) -> () in
                     print("dtls ok")
+                })
+            }
+            
+            subscriber!.onUnsubscribed = { (receiver) -> () in
+                guard let delegate = self.delegate else { return }
+                delegate.onUnsubscribed(receiver: receiver)
+                self.socket.request(event: "unsubscribe", data: [
+                    "transportId": self.subscriber!.id, "senderId": receiver.senderId
+                ], callback: { (_: [String: Any]) -> () in
+                    print("unsubscribed ok")
                 })
             }
             
@@ -203,11 +219,13 @@ public class Session {
                 delegate.onIn(tokenId: tokenId, metadata: metadata)
             case "leave":
                 guard let tokenId = data["tokenId"] as? String else { return }
+                
+                guard let subscriber = self.subscriber else { return }
+                subscriber.unsubscribers(tokenId: tokenId)
+                
                 guard let delegate = delegate else { return }
                 delegate.onOut(tokenId: tokenId)
-                
-                // TODO: release recevier
-                
+                                
             case "publish":
                 guard let senderId = data["senderId"] as? String, let tokenId = data["tokenId"] as? String, let receiverId = data["receiverId"] as? String, let metadata = data["metadata"] as? [String: String], let codecDic = data["codec"] as? [String: Any] else { return }
                 // TODO: check codec
@@ -219,7 +237,10 @@ public class Session {
                 delegate.onReceiver(receiver: receiver)
                 
             case "unpublish":
-                break
+                guard let senderId = data["senderId"] as? String, let tokenId = data["tokenId"] as? String else { return }
+                guard let subscriber = self.subscriber else { return }
+                subscriber.unsubscriber(senderId: senderId)
+            
             case "pause":
                 break
             case "resume":

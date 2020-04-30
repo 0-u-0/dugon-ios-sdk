@@ -19,8 +19,13 @@ public struct Dugon {
         RTCInitializeSSL()
         RTCEnableMetrics()
         
-       let  decoderFactory = RTCDefaultVideoDecoderFactory()
-       let  encoderFactory = RTCDefaultVideoEncoderFactory()
+        #if DEBUG
+        //TODO: add log flag
+        RTCSetMinDebugLogLevel(.none);
+        #endif
+        
+        let decoderFactory = RTCDefaultVideoDecoderFactory()
+        let encoderFactory = RTCDefaultVideoEncoderFactory()
         
 //        RTCDefaultVideoEncoderFactory.supportedCodecs().map { (info) -> Void in
 //
@@ -28,7 +33,7 @@ public struct Dugon {
 //        }
         
 //        RTCDefaultVideoDecoderFactory.supportedCodecs().map { (info) -> Void in
-//        
+//
 //                    print(info.parameters)
 //        }
         factory = RTCPeerConnectionFactory(encoderFactory: encoderFactory, decoderFactory: decoderFactory)

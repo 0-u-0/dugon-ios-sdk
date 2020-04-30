@@ -21,6 +21,7 @@ class Subscriber: Transport {
     
     public var onDtls: ((_ algorithm: String, _ hash: String, _ role: String) -> Void)?
     public var onMedia: ((_ source: MediaSource, _ receiver: Receiver) -> Void)?
+    public var onUnsubscribed: ((_ recever: Receiver) -> Void)?
     
     override init(factory: RTCPeerConnectionFactory, id: String, iceCandidates: [ICECandidate], iceParameters: ICEParameters, dtlsParameters: [String: Any]) {
         super.init(factory: factory, id: id, iceCandidates: iceCandidates, iceParameters: iceParameters, dtlsParameters:
@@ -73,10 +74,64 @@ class Subscriber: Transport {
                             let session = Sdp.parse(sdpStr: answer.sdp)
                             let media = session.medias[0]
                             guard let fingerprint = media.fingerprint else { return }
-
+                            
                             guard let onDtls = self.onDtls else { return } // TODO: error
                             onDtls(fingerprint.algorithm, fingerprint.hash, "active")
                         }
+                    }
+                }
+            }
+        }
+    }
+    
+    func unsubscribers(tokenId: String) {
+        for receiver in receivers {
+            if receiver.tokenId == tokenId {
+                unsubscriber(receiverId: receiver.id)
+            }
+        }
+    }
+    
+    func unsubscriber(receiverId: String) {
+        if let receiver = receivers.first(where: { $0.id == receiverId }) {
+            asyncQueue.async {
+                self._unsubscriber(receiver: receiver)
+            }
+        }
+    }
+    
+    func unsubscriber(senderId: String) {
+        if let receiver = receivers.first(where: { $0.senderId == senderId }) {
+            asyncQueue.async {
+                self._unsubscriber(receiver: receiver)
+            }
+        }
+    }
+    
+    
+    func _unsubscriber(receiver: Receiver) {
+        guard let pc = pc else { return }
+        receiver.media.direction = "inactive"
+        let remoteSdp = generateRemoteSdp()
+        
+        pc.setRemoteDescription(remoteSdp) { error in
+            guard error == nil else {
+                // TODO:
+                print(error.debugDescription)
+                return
+            }
+            let constraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
+            pc.answer(for: constraints) { answer, error in
+                if error == nil, let answer = answer {
+                    print(answer.sdp)
+                    pc.setLocalDescription(answer) { error in
+                        if error != nil {
+                            // TODO:
+                            print(error.debugDescription)
+                        }
+                        
+                        guard let onUnsubscribed = self.onUnsubscribed else { return } // TODO: error
+                        onUnsubscribed(receiver)
                     }
                 }
             }
