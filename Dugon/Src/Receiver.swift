@@ -18,7 +18,9 @@ public class Receiver {
     var media:Media
     let codec:Codec
 
-    public var available = false
+    public var available:Bool {
+        return media.available
+    }
     
     public var kind:String{
         return codec.kind

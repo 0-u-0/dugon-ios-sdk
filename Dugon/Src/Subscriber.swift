@@ -93,7 +93,7 @@ class Subscriber: Transport {
     }
     
     func unsubscriber(receiverId: String) {
-        if let receiver = receivers.first(where: { $0.id == receiverId }) {
+        if let receiver = receivers.first(where: { $0.id == receiverId && $0.available }) {
             asyncQueue.async {
                 self._unsubscriber(receiver: receiver)
             }
@@ -101,7 +101,7 @@ class Subscriber: Transport {
     }
     
     func unsubscriber(senderId: String) {
-        if let receiver = receivers.first(where: { $0.senderId == senderId }) {
+        if let receiver = receivers.first(where: { $0.senderId == senderId && $0.available }) {
             asyncQueue.async {
                 self._unsubscriber(receiver: receiver)
             }
