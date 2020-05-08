@@ -16,13 +16,13 @@ class Transport: NSObject,RTCPeerConnectionDelegate{
     
     let id:String
     
-    let remoteDTLSParameters:[String:Any]
+    let remoteDTLSParameters:[String:String]
     let remoteICEParameters:ICEParameters
     let remoteICECandidates:[ICECandidate]
     
     let factory:RTCPeerConnectionFactory
     
-    init(factory:RTCPeerConnectionFactory,id:String,iceCandidates:[ICECandidate],iceParameters:ICEParameters,dtlsParameters:[String:Any]){
+    init(factory:RTCPeerConnectionFactory,id:String,iceCandidates:[ICECandidate],iceParameters:ICEParameters,dtlsParameters:[String:String]){
         self.factory = factory
         self.id = id
         self.remoteICECandidates = iceCandidates

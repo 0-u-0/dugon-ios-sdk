@@ -46,10 +46,7 @@ class Socket : WebSocketDelegate{
         callbacks[id] = callback
         socket.write(string: data.json)
     }
-    
-    func request(event:String,data:[String:Any],callback:@escaping RequestCallback) {
-        request(params: ["event":event,"data":data], callback: callback)
-    }
+
     
     // MARK: - WebSocketDelegate
     public func didReceive(event: WebSocketEvent, client: WebSocket) {

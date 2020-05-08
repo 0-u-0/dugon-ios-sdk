@@ -26,9 +26,7 @@ public class Receiver {
         return codec.kind
     }
     
-    public var senderPaused:Bool{
-        return codec.senderPaused
-    }
+    public var senderPaused:Bool
     
     init(mid: String, senderId: String, tokenId: String, receiverId: String, codec: Codec, metadata: [String: String], media: Media) {
         self.id = receiverId
@@ -38,5 +36,6 @@ public class Receiver {
         self.codec = codec
         self.metadata = metadata
         self.media = media
+        self.senderPaused = codec.senderPaused
     }
 }

@@ -26,6 +26,7 @@ public protocol SessionDelegate: class {
     func onReceiver(receiver: Receiver)
     func onMedia(source: MediaSource, receiver: Receiver)
     func onUnsubscribed(receiver: Receiver)
+    func onChange(receiver: Receiver, isPaused: Bool)
 }
 
 public class Session {
@@ -33,7 +34,7 @@ public class Session {
     var sub: Bool = false
     
     let socket: Socket
-    var supportedCodec: [String: Any]?
+    var supportedCodec: [String: Codec?]?
     
     let factory: RTCPeerConnectionFactory
     
@@ -59,12 +60,11 @@ public class Session {
     public func publish(source: MediaSource, codec: String) {
         guard let publisher = publisher else { return }
         guard let supportedCodec = supportedCodec else { return }
-        guard let codecDic: [String: Any] = supportedCodec[codec] as? [String: Any] else { return }
         
-        let codecCap = createByDic(type: Codec.self, dic: codecDic)
-        guard codecCap != nil else { return }
+        if let codecCap = supportedCodec[codec] {
+            publisher.publish(source: source, codec: codecCap!)
+        }
         
-        publisher.publish(source: source, codec: codecCap!)
     }
     
     public func publish(source: MediaSource) {
@@ -92,11 +92,57 @@ public class Session {
         subscriber.unsubscriber(receiverId: receiverId)
     }
     
+    func request(event: String, data: [String: Any], callback: @escaping RequestCallback) {
+        socket.request(params: ["event": event, "data": data], callback: callback)
+    }
+    
+    private func getInfoById(id: String) -> (transportId: String, role: String, senderId: String) {
+        var transportId = ""
+        var role = ""
+        var senderId = ""
+        if let subscriber = self.subscriber, let receiver = subscriber.getReceiver(id: id) {
+            role = "sub"
+            transportId = subscriber.id
+            senderId = receiver.senderId
+        } else if let publisher = self.publisher, let sender = publisher.getSender(id: id) {
+            role = "pub"
+            transportId = publisher.id
+            senderId = sender.id!
+        }
+        return (transportId, role, senderId)
+    }
+    
+    public func pause(id: String) {
+        let bounds = getInfoById(id: id)
+        if !bounds.transportId.isEmpty {
+            request(event: "pause", data: [
+                "transportId": bounds.transportId,
+                "role": bounds.role,
+                "senderId": bounds.senderId
+            ], callback: { (_: [String: Any]) -> () in
+                print("pause ok")
+            })
+        }
+    }
+    
+    public func resume(id: String) {
+        let bounds = getInfoById(id: id)
+        if !bounds.transportId.isEmpty {
+            request(event: "resume", data: [
+                "transportId": bounds.transportId,
+                "role": bounds.role,
+                "senderId": bounds.senderId
+            ], callback: { (_: [String: Any]) -> () in
+                print("resume ok")
+            })
+        }
+    }
+    
     private func initTransport(role: String, parameters: [String: Any]) {
         guard let transportId = parameters["id"] as? String else { return }
         guard let iceParam = parameters["iceParameters"] as? [String: Any] else { return }
         guard let iceCandidates = parameters["iceCandidates"] as? [[String: Any]] else { return }
-        guard let dtlsParameters = parameters["dtlsParameters"] as? [String: Any] else { return }
+        guard let dtlsParameters = parameters["dtlsParameters"] as? [String: String] else { return }
         
         let candidates = iceCandidates.map { createByDic(type: ICECandidate.self, dic: $0)! }
         let iceParameters = createByDic(type: ICEParameters.self, dic: iceParam)!
@@ -122,7 +168,7 @@ public class Session {
                 if let mergedMedia = sender.media {
                     if let pubCodec = mergedMedia.toCodec() {
                         let codecJson = pubCodec.toJson()
-                        self.socket.request(event: "publish", data: [
+                        self.request(event: "publish", data: [
                             "transportId": self.publisher!.id,
                             "codec": codecJson,
                             "metadata": []
@@ -138,7 +184,7 @@ public class Session {
             }
             
             publisher!.onUnpublished = { (senderId) -> () in
-                self.socket.request(event: "unpublish", data: [
+                self.request(event: "unpublish", data: [
                     "transportId": self.publisher!.id,
                     "senderId": senderId,
                     "metadata": []
@@ -154,6 +200,8 @@ public class Session {
             subscriber!.onMedia = { (source, receiver) -> () in
                 guard let delegate = self.delegate else { return }
                 delegate.onMedia(source: source, receiver: receiver)
+                // receiver start with pausing
+                self.resume(id: receiver.id)
             }
             
             subscriber!.onDtls = { (algorithm, hash, role) -> () in
@@ -175,7 +223,7 @@ public class Session {
             subscriber!.onUnsubscribed = { (receiver) -> () in
                 guard let delegate = self.delegate else { return }
                 delegate.onUnsubscribed(receiver: receiver)
-                self.socket.request(event: "unsubscribe", data: [
+                self.request(event: "unsubscribe", data: [
                     "transportId": self.subscriber!.id, "senderId": receiver.senderId
                 ], callback: { (_: [String: Any]) -> () in
                     print("unsubscribed ok")
@@ -186,9 +234,19 @@ public class Session {
         }
     }
     
+    func remotePubChange(senderId: String, isPaused: Bool) {
+        guard let subscriber = self.subscriber else { return }
+        if let receiver = subscriber.getReceiver(senderId: senderId) {
+            receiver.senderPaused = isPaused
+            guard let delegate = delegate else { return }
+            delegate.onChange(receiver: receiver, isPaused: isPaused)
+        }
+    }
+    
     // MARK: - SocketDelegate
     
     func onConnected() {
+        print("onconnect")
         socket.request(params: ["event": "join", "data": [
             "pub": pub,
             "sub": sub
@@ -203,7 +261,12 @@ public class Session {
                 self.initTransport(role: "sub", parameters: subParameters)
             }
             
-            self.supportedCodec = codecs
+            self.supportedCodec = codecs.mapValues { (codecAny) -> Codec? in
+                if let codecDic = codecAny as? [String: Any] {
+                    return createByDic(type: Codec.self, dic: codecDic)
+                }
+                return nil
+            }
             
             guard let delegate = self.delegate else { return }
             delegate.onConnected()
@@ -225,7 +288,7 @@ public class Session {
                 
                 guard let delegate = delegate else { return }
                 delegate.onOut(tokenId: tokenId)
-                                
+                
             case "publish":
                 guard let senderId = data["senderId"] as? String, let tokenId = data["tokenId"] as? String, let receiverId = data["receiverId"] as? String, let metadata = data["metadata"] as? [String: String], let codecDic = data["codec"] as? [String: Any] else { return }
                 // TODO: check codec
@@ -237,14 +300,16 @@ public class Session {
                 delegate.onReceiver(receiver: receiver)
                 
             case "unpublish":
-                guard let senderId = data["senderId"] as? String, let tokenId = data["tokenId"] as? String else { return }
+                guard let senderId = data["senderId"] as? String else { return }
                 guard let subscriber = self.subscriber else { return }
                 subscriber.unsubscriber(senderId: senderId)
-            
+                
             case "pause":
-                break
+                guard let senderId = data["senderId"] as? String else { return }
+                remotePubChange(senderId: senderId, isPaused: true)
             case "resume":
-                break
+                guard let senderId = data["senderId"] as? String else { return }
+                remotePubChange(senderId: senderId, isPaused: false)
             default:
                 break
         }

@@ -23,7 +23,7 @@ class Subscriber: Transport {
     public var onMedia: ((_ source: MediaSource, _ receiver: Receiver) -> Void)?
     public var onUnsubscribed: ((_ recever: Receiver) -> Void)?
     
-    override init(factory: RTCPeerConnectionFactory, id: String, iceCandidates: [ICECandidate], iceParameters: ICEParameters, dtlsParameters: [String: Any]) {
+    override init(factory: RTCPeerConnectionFactory, id: String, iceCandidates: [ICECandidate], iceParameters: ICEParameters, dtlsParameters: [String: String]) {
         super.init(factory: factory, id: id, iceCandidates: iceCandidates, iceParameters: iceParameters, dtlsParameters:
             dtlsParameters)
     }
@@ -84,6 +84,14 @@ class Subscriber: Transport {
         }
     }
     
+    func getReceiver(id: String) -> Receiver? {
+        return receivers.first(where: { $0.id == id && $0.available })
+    }
+    
+    func getReceiver(senderId: String) -> Receiver? {
+        return receivers.first(where: { $0.senderId == senderId && $0.available })
+    }
+    
     func unsubscribers(tokenId: String) {
         for receiver in receivers {
             if receiver.tokenId == tokenId {
@@ -93,7 +101,7 @@ class Subscriber: Transport {
     }
     
     func unsubscriber(receiverId: String) {
-        if let receiver = receivers.first(where: { $0.id == receiverId && $0.available }) {
+        if let receiver = getReceiver(id: receiverId) {
             asyncQueue.async {
                 self._unsubscriber(receiver: receiver)
             }
@@ -101,13 +109,12 @@ class Subscriber: Transport {
     }
     
     func unsubscriber(senderId: String) {
-        if let receiver = receivers.first(where: { $0.senderId == senderId && $0.available }) {
+        if let receiver = getReceiver(senderId: senderId) {
             asyncQueue.async {
                 self._unsubscriber(receiver: receiver)
             }
         }
     }
-    
     
     func _unsubscriber(receiver: Receiver) {
         guard let pc = pc else { return }
@@ -157,10 +164,8 @@ class Subscriber: Transport {
         sdp.timing = "0 0"
         sdp.msidSemantic = " WMS"
         
-        if let fingerprint = remoteDTLSParameters["fingerprint"] as? [String: String] {
-            if let algorithm = fingerprint["algorithm"], let fingerprintValue = fingerprint["value"] {
-                sdp.fingerprint = Fingerprint(algorithm: algorithm, hash: fingerprintValue)
-            }
+        if let algorithm = remoteDTLSParameters["algorithm"], let fingerprintValue = remoteDTLSParameters["value"] {
+            sdp.fingerprint = Fingerprint(algorithm: algorithm, hash: fingerprintValue)
         }
         
         for receiver in receivers {
