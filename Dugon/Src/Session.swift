@@ -43,10 +43,10 @@ public class Session {
     
     public weak var delegate: SessionDelegate?
     
-    init(factory: RTCPeerConnectionFactory, sessionId: String, tokenId: String, metadata: [String: Any]) {
+    init(factory: RTCPeerConnectionFactory,url: String ,sessionId: String, tokenId: String, metadata: [String: Any]) {
         self.factory = factory
         let params = ["sessionId": sessionId, "tokenId": tokenId, "metadata": metadata] as [String: Any]
-        socket = Socket(url: "ws://192.168.31.254:8080", params: params)
+        socket = Socket(url: url, params: params)
         socket.onConnected = onConnected
         socket.onNotification = onNotification
     }

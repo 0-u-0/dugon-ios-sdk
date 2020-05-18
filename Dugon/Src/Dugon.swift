@@ -20,8 +20,8 @@ public struct Dugon {
         RTCEnableMetrics()
         
         #if DEBUG
-        //TODO: add log flag
-        RTCSetMinDebugLogLevel(.none);
+        // TODO: add log flag
+        RTCSetMinDebugLogLevel(.none)
         #endif
         
         let decoderFactory = RTCDefaultVideoDecoderFactory()
@@ -39,9 +39,9 @@ public struct Dugon {
         factory = RTCPeerConnectionFactory(encoderFactory: encoderFactory, decoderFactory: decoderFactory)
     }
     
-    public static func createSession(sessionId: String, tokenId: String, metadata: [String: Any]) -> Session? {
+    public static func createSession(url: String, sessionId: String, tokenId: String, metadata: [String: Any]) -> Session? {
         guard let factory = factory else { return nil }
-        return Session(factory: factory, sessionId: sessionId, tokenId: tokenId, metadata: metadata)
+        return Session(factory: factory, url: url, sessionId: sessionId, tokenId: tokenId, metadata: metadata)
     }
     
     public static func createVideoSource() -> LocalVideoSource? {
