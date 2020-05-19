@@ -63,19 +63,19 @@ class Transport: NSObject,RTCPeerConnectionDelegate{
     func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
         switch newState {
         case .checking:
-            print("checking")
+            print("peerConnection: checking")
         case .closed:
-            print("closed")
+            print("peerConnection: closed")
         case .completed:
-            print("completed")
+            print("peerConnection: completed")
         case .connected:
-            print("connected")
+            print("peerConnection: connected")
         case .failed:
-            print("failed")
+            print("peerConnection: failed")
         case .new:
-            print("new")
+            print("peerConnection: new")
         default:
-            print("unknown ice state")
+            print("peerConnection: unknown ice state")
         }
 //        print("ice state \(newState.rawValue)")
     }

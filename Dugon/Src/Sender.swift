@@ -9,34 +9,35 @@
 import Foundation
 import WebRTC
 
-public class Sender{
+public class Sender {
+    public var id: String?
+    public let metadata: [String: String]
     
-    public var id:String?
-
-    var mid:String {
+    var mid: String {
         return transceiver.mid
     }
-
-    public var kind:String {
+    
+    public var kind: String {
         if let track = transceiver.sender.track {
             return track.kind
         }
         return ""
     }
     
-    var media:Media?
+    var media: Media?
     
-    var isStopped:Bool {
+    var isStopped: Bool {
         return transceiver.isStopped
     }
     
-    var available:Bool {
+    var available: Bool {
         return !(transceiver.direction == .inactive)
     }
     
-    let transceiver:RTCRtpTransceiver
-    init(transceiver:RTCRtpTransceiver) {
+    let transceiver: RTCRtpTransceiver
+    init(transceiver: RTCRtpTransceiver, metadata: [String: String]) {
         self.transceiver = transceiver
+        self.metadata = metadata
     }
     
     func disableMedia() {

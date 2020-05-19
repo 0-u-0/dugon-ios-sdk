@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B36C2F38245568F300B99EFF /* RemoteAudioSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36C2F37245568F300B99EFF /* RemoteAudioSource.swift */; };
 		B36C2F3A2455690300B99EFF /* RemoteVideoSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36C2F392455690300B99EFF /* RemoteVideoSource.swift */; };
+		B39893272473A5F20042DFF6 /* RemoteSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39893262473A5F20042DFF6 /* RemoteSender.swift */; };
 		B3A419602446D137009066A7 /* Dugon.h in Headers */ = {isa = PBXBuildFile; fileRef = B3A4195E2446D137009066A7 /* Dugon.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B3A41B0D2446D48E009066A7 /* Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41AB22446D48D009066A7 /* Transport.swift */; };
 		B3A41B0E2446D48E009066A7 /* Dugon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A41AB32446D48D009066A7 /* Dugon.swift */; };
@@ -49,6 +50,7 @@
 /* Begin PBXFileReference section */
 		B36C2F37245568F300B99EFF /* RemoteAudioSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAudioSource.swift; sourceTree = "<group>"; };
 		B36C2F392455690300B99EFF /* RemoteVideoSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteVideoSource.swift; sourceTree = "<group>"; };
+		B39893262473A5F20042DFF6 /* RemoteSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSender.swift; sourceTree = "<group>"; };
 		B3A4195B2446D137009066A7 /* Dugon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Dugon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3A4195E2446D137009066A7 /* Dugon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Dugon.h; sourceTree = "<group>"; };
 		B3A4195F2446D137009066A7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 				B3CDC8C42454641000635A00 /* Receiver.swift */,
 				B36C2F37245568F300B99EFF /* RemoteAudioSource.swift */,
 				B36C2F392455690300B99EFF /* RemoteVideoSource.swift */,
+				B39893262473A5F20042DFF6 /* RemoteSender.swift */,
 			);
 			path = Src;
 			sourceTree = "<group>";
@@ -251,6 +254,7 @@
 			files = (
 				B3EB4950244ED21E0024513D /* Publisher.swift in Sources */,
 				B3EB4961244F4D460024513D /* String+Dictionary.swift in Sources */,
+				B39893272473A5F20042DFF6 /* RemoteSender.swift in Sources */,
 				B3EB494B244DDFE60024513D /* Session.swift in Sources */,
 				B3EB495F244F2B0A0024513D /* Codec.swift in Sources */,
 				B36C2F3A2455690300B99EFF /* RemoteVideoSource.swift in Sources */,

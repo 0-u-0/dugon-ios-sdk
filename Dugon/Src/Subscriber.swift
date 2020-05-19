@@ -12,6 +12,8 @@ import WebRTC
 class Subscriber: Transport {
     var receivers = [Receiver]()
     
+    var remoteSenders = [String: RemoteSender]()
+    
     let asyncQueue = DispatchQueue(label: "subscriber.queue")
     
     var isDtls: Bool = false

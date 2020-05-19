@@ -28,9 +28,9 @@ class Publisher: Transport {
             dtlsParameters)
     }
     
-    func publish(source: MediaSource, codec: Codec) {
+    func publish(source: MediaSource, codec: Codec, metadata: [String: String]) {
         asyncQueue.async {
-            self._publish(source: source, codec: codec)
+            self._publish(source: source, codec: codec, metadata: metadata)
         }
     }
     
@@ -83,14 +83,14 @@ class Publisher: Transport {
         }
     }
     
-    func _publish(source: MediaSource, codec: Codec) {
+    func _publish(source: MediaSource, codec: Codec, metadata: [String: String]) {
         guard let pc = pc else { return }
         
         let initConfig = RTCRtpTransceiverInit()
         initConfig.direction = RTCRtpTransceiverDirection.sendOnly
         
         let transceiver = pc.addTransceiver(with: source.mediaTrack, init: initConfig)
-        let sender = Sender(transceiver: transceiver)
+        let sender = Sender(transceiver: transceiver,metadata: metadata)
         senders.append(sender)
         
         let constraints2 = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)

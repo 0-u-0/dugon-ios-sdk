@@ -20,7 +20,7 @@ struct ICEParameters: Codable {
 
 public protocol SessionDelegate: class {
     func onConnected()
-    func onSender(sender: Sender)
+    func onSender(senderId: String, tokenId: String, metadata: [String: String])
     func onIn(tokenId: String, metadata: [String: String])
     func onOut(tokenId: String)
     func onReceiver(receiver: Receiver)
@@ -33,6 +33,7 @@ public class Session {
     var pub: Bool = false
     var sub: Bool = false
     
+    let tokenId: String
     let socket: Socket
     var supportedCodec: [String: Codec?]?
     
@@ -43,8 +44,9 @@ public class Session {
     
     public weak var delegate: SessionDelegate?
     
-    init(factory: RTCPeerConnectionFactory,url: String ,sessionId: String, tokenId: String, metadata: [String: Any]) {
+    init(factory: RTCPeerConnectionFactory, url: String, sessionId: String, tokenId: String, metadata: [String: Any]) {
         self.factory = factory
+        self.tokenId = tokenId
         let params = ["sessionId": sessionId, "tokenId": tokenId, "metadata": metadata] as [String: Any]
         socket = Socket(url: url, params: params)
         socket.onConnected = onConnected
@@ -57,14 +59,17 @@ public class Session {
         socket.connect()
     }
     
-    public func publish(source: MediaSource, codec: String) {
+    public func publish(source: MediaSource, codec: String, metadata: [String: String]) {
         guard let publisher = publisher else { return }
         guard let supportedCodec = supportedCodec else { return }
         
         if let codecCap = supportedCodec[codec] {
-            publisher.publish(source: source, codec: codecCap!)
+            publisher.publish(source: source, codec: codecCap!, metadata: metadata)
         }
-        
+    }
+    
+    public func publish(source: MediaSource, codec: String){
+        publish(source: source, codec: codec, metadata: [String: String]())
     }
     
     public func publish(source: MediaSource) {
@@ -74,7 +79,7 @@ public class Session {
         } else {
             codec = DEFAULT_VIDEO_CODEC
         }
-        publish(source: source, codec: codec)
+        publish(source: source, codec: codec, metadata: [String: String]())
     }
     
     public func unpublish(senderId: String) {
@@ -165,6 +170,7 @@ public class Session {
             }
             
             publisher!.onSender = { (sender) -> () in
+                print("onsender")
                 if let mergedMedia = sender.media {
                     if let pubCodec = mergedMedia.toCodec() {
                         let codecJson = pubCodec.toJson()
@@ -177,7 +183,7 @@ public class Session {
                             sender.id = senderId
                             
                             guard let delegate = self.delegate else { return }
-                            delegate.onSender(sender: sender)
+//                            delegate.onSender(senderId: senderId, tokenId: self.tokenId, metadata: s)
                         })
                     }
                 }
@@ -283,21 +289,32 @@ public class Session {
             case "leave":
                 guard let tokenId = data["tokenId"] as? String else { return }
                 
-                guard let subscriber = self.subscriber else { return }
-                subscriber.unsubscribers(tokenId: tokenId)
+                if let subscriber = self.subscriber {
+                    subscriber.unsubscribers(tokenId: tokenId)
+                }
                 
                 guard let delegate = delegate else { return }
                 delegate.onOut(tokenId: tokenId)
                 
             case "publish":
-                guard let senderId = data["senderId"] as? String, let tokenId = data["tokenId"] as? String, let receiverId = data["receiverId"] as? String, let metadata = data["metadata"] as? [String: String], let codecDic = data["codec"] as? [String: Any] else { return }
-                // TODO: check codec
-                let codec = createByDic(type: Codec.self, dic: codecDic)!
-                
                 guard let subscriber = self.subscriber else { return }
-                let receiver = subscriber.addReceiver(senderId: senderId, tokenId: tokenId, receiverId: receiverId, codec: codec, metadata: metadata)
-                guard let delegate = delegate else { return }
-                delegate.onReceiver(receiver: receiver)
+                
+                if let remoteSender = createByDic(type: RemoteSender.self, dic: data) {
+                    print(remoteSender)
+                    subscriber.remoteSenders[remoteSender.senderId] = remoteSender
+                    
+                    guard let delegate = delegate else { return }
+                    delegate.onOut(tokenId: tokenId)
+                }
+                
+//                guard let senderId = data["senderId"] as? String, let tokenId = data["tokenId"] as? String, let receiverId = data["receiverId"] as? String, let metadata = data["metadata"] as? [String: String], let codecDic = data["codec"] as? [String: Any] else { return }
+//                // TODO: check codec
+//                let codec = createByDic(type: Codec.self, dic: codecDic)!
+//
+//                guard let subscriber = self.subscriber else { return }
+//                let receiver = subscriber.addReceiver(senderId: senderId, tokenId: tokenId, receiverId: receiverId, codec: codec, metadata: metadata)
+//                guard let delegate = delegate else { return }
+//                delegate.onReceiver(receiver: receiver)
                 
             case "unpublish":
                 guard let senderId = data["senderId"] as? String else { return }
