@@ -23,7 +23,7 @@ public protocol SessionDelegate: class {
     func onSender(senderId: String, tokenId: String, metadata: [String: String])
     func onIn(tokenId: String, metadata: [String: String])
     func onOut(tokenId: String)
-    func onReceiver(receiver: Receiver)
+//    func onReceiver(receiver: Receiver)
     func onMedia(source: MediaSource, receiver: Receiver)
     func onUnsubscribed(receiver: Receiver)
     func onChange(receiver: Receiver, isPaused: Bool)
@@ -68,7 +68,7 @@ public class Session {
         }
     }
     
-    public func publish(source: MediaSource, codec: String){
+    public func publish(source: MediaSource, codec: String) {
         publish(source: source, codec: codec, metadata: [String: String]())
     }
     
@@ -87,17 +87,43 @@ public class Session {
         publisher.unpublish(senderId: senderId)
     }
     
-    public func subscribe(receiverId: String) {
+    public func subscribe(senderId: String) {
         guard let subscriber = subscriber else { return }
-        subscriber.subscribe(receiverId: receiverId)
+        if let remoteSender = subscriber.remoteSenders[senderId] {
+            if let remoteSenderJson = remoteSender.toJson() {
+                request(event: "subscribe", data: remoteSenderJson, callback: { (data: [String: Any]) -> () in
+                    guard let receiverId = data["receiverId"] as? String, let codecDic = data["codec"] as? [String: Any] else { return }
+                    // TODO: check codec
+                    let codec = createByDic(type: Codec.self, dic: codecDic)!
+                    
+                    //                guard let subscriber = self.subscriber else { return }
+                    let receiver = subscriber.addReceiver(senderId: remoteSender.senderId, tokenId: remoteSender.tokenId, receiverId: receiverId, codec: codec, metadata: remoteSender.metadata)
+                    subscriber.subscribe(receiver: receiver)
+                })
+            }
+            
+            //                guard let senderId = data["senderId"] as? String, let tokenId = data["tokenId"] as? String, let receiverId = data["receiverId"] as? String, let metadata = data["metadata"] as? [String: String], let codecDic = data["codec"] as? [String: Any] else { return }
+            //                // TODO: check codec
+            //                let codec = createByDic(type: Codec.self, dic: codecDic)!
+            //
+            //                guard let subscriber = self.subscriber else { return }
+            //                let receiver = subscriber.addReceiver(senderId: senderId, tokenId: tokenId, receiverId: receiverId, codec: codec, metadata: metadata)
+            //                guard let delegate = delegate else { return }
+            //                delegate.onReceiver(receiver: receiver)
+        }
     }
+    
+//    public func subscribe(receiverId: String) {
+//        guard let subscriber = subscriber else { return }
+//        subscriber.subscribe(receiverId: receiverId)
+//    }
     
     public func unsubscribe(receiverId: String) {
         guard let subscriber = subscriber else { return }
         subscriber.unsubscriber(receiverId: receiverId)
     }
     
-    func request(event: String, data: [String: Any], callback: @escaping RequestCallback) {
+    func request(event: String, data: Any, callback: @escaping RequestCallback) {
         socket.request(params: ["event": event, "data": data], callback: callback)
     }
     
@@ -304,7 +330,7 @@ public class Session {
                     subscriber.remoteSenders[remoteSender.senderId] = remoteSender
                     
                     guard let delegate = delegate else { return }
-                    delegate.onOut(tokenId: tokenId)
+                    delegate.onSender(senderId: remoteSender.senderId, tokenId: remoteSender.tokenId, metadata: remoteSender.metadata)
                 }
                 
 //                guard let senderId = data["senderId"] as? String, let tokenId = data["tokenId"] as? String, let receiverId = data["receiverId"] as? String, let metadata = data["metadata"] as? [String: String], let codecDic = data["codec"] as? [String: Any] else { return }

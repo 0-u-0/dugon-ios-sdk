@@ -30,12 +30,10 @@ class Subscriber: Transport {
             dtlsParameters)
     }
     
-    func subscribe(receiverId: String) {
-        if let receiver = receivers.first(where: { $0.id == receiverId }) {
-            asyncQueue.async {
-                self._subscribe(receiver: receiver)
-            }
-        }
+    func subscribe(receiver: Receiver) {
+        asyncQueue.async {
+             self._subscribe(receiver: receiver)
+         }
     }
     
     private func _subscribe(receiver: Receiver) {
