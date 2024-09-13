@@ -88,6 +88,7 @@ public class LocalVideoSource:VideoSource{
 
         let captureDevices = RTCCameraVideoCapturer.captureDevices();
 
+        
         var mydevice:AVCaptureDevice!
         
         for device in captureDevices{

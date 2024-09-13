@@ -23,8 +23,9 @@ class Codec:Codable {
     var dtx:Bool
     var senderPaused:Bool
     var reducedSize = true
-    var mux = true
     
+    var mux:Bool?
+
     var ssrc:Int?
     var cname:String?
     var mid:String?

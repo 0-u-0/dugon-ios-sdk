@@ -94,11 +94,15 @@ public class Session {
                 request(event: "subscribe", data: remoteSenderJson, callback: { (data: [String: Any]) -> () in
                     guard let receiverId = data["receiverId"] as? String, let codecDic = data["codec"] as? [String: Any] else { return }
                     // TODO: check codec
-                    let codec = createByDic(type: Codec.self, dic: codecDic)!
-                    
+                    let codec = createByDic(type: Codec.self, dic: codecDic)
+                    if codec != nil{
+                        let receiver = subscriber.addReceiver(senderId: remoteSender.senderId, tokenId: remoteSender.tokenId, receiverId: receiverId, codec: codec!, metadata: remoteSender.metadata)
+                        subscriber.subscribe(receiver: receiver)
+                    }else{
+                        print("????")
+                    }
                     //                guard let subscriber = self.subscriber else { return }
-                    let receiver = subscriber.addReceiver(senderId: remoteSender.senderId, tokenId: remoteSender.tokenId, receiverId: receiverId, codec: codec, metadata: remoteSender.metadata)
-                    subscriber.subscribe(receiver: receiver)
+
                 })
             }
             

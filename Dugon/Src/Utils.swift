@@ -23,9 +23,19 @@ func createByDic<T:Decodable>(type:T.Type,dic:[String:Any]) -> T?{
     do {
         obj = try JSONDecoder().decode(T.self, from: codecJson)
         return obj
+    } catch let DecodingError.dataCorrupted(context) {
+        print(context)
+    } catch let DecodingError.keyNotFound(key, context) {
+        print("Key '\(key)' not found:", context.debugDescription)
+        print("codingPath:", context.codingPath)
+    } catch let DecodingError.valueNotFound(value, context) {
+        print("Value '\(value)' not found:", context.debugDescription)
+        print("codingPath:", context.codingPath)
+    } catch let DecodingError.typeMismatch(type, context)  {
+        print("Type '\(type)' mismatch:", context.debugDescription)
+        print("codingPath:", context.codingPath)
     } catch {
-        print(dic)
-        print("Error took place: \(error.localizedDescription).")
-        return nil
+        print("error: ", error)
     }
+    return nil
 }

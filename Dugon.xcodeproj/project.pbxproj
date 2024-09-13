@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -492,7 +492,7 @@
 			repositoryURL = "https://github.com/daltoniam/Starscream";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.3;
+				minimumVersion = 4.0.8;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

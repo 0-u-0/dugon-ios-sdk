@@ -149,7 +149,7 @@ public struct Media {
         media.candidates = iceCandidates
         media.extensions = codec.extensions
         media.rtcpRsize = codec.reducedSize
-        media.rtcpMux = codec.mux
+        media.rtcpMux = codec.mux ?? true
         // https://tools.ietf.org/html/draft-ietf-mmusic-msid-17#page-5
         media.msidAppdata = msidAppdata
         

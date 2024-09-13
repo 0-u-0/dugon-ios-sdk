@@ -49,7 +49,7 @@ class Socket : WebSocketDelegate{
 
     
     // MARK: - WebSocketDelegate
-    public func didReceive(event: WebSocketEvent, client: WebSocket) {
+    func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocketClient) {
         switch event {
         case .connected(_):
             guard let onConnected = onConnected else { return } //TODO:error
@@ -96,8 +96,10 @@ class Socket : WebSocketDelegate{
             print("cancelled")
             break
         case .error(let error):
-            print("error")
+            print("error \(String(describing: error))")
             break
+        case .peerClosed:
+            print("peerClosed")
         }
     }
     
