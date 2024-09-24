@@ -3,21 +3,58 @@
 
 import PackageDescription
 
+let file = "WebRTC-128.0.6613.147/WebRTC.xcframework.zip"
+
 let package = Package(
     name: "Dugon",
+    platforms: [.iOS(.v13)],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "Dugon",
-            targets: ["Dugon"]),
+        .library(name: "Dugon", targets: ["Dugon"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.6")
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+        .binaryTarget(
+            name: "WebRTC",
+            url: "https://github.com/0-u-0/dugon-ios-sdk-specs/releases/download/\(file)",
+            checksum: "de37003be7d08d2d36b17bb9393c2159c3d40994becbd3234a471fd8c88d9527"
+        ),
         .target(
-            name: "Dugon"),
-        .testTarget(
-            name: "DugonTests",
-            dependencies: ["Dugon"]),
+            name: "Dugon",
+            dependencies: [
+                "WebRTC",
+                "Starscream"
+            ]
+        ),
     ]
 )
+
+
+//
+//import Foundation
+//import PackageDescription
+//
+//
+//let package = Package(
+//    name: "Sora",
+//    platforms: [.iOS(.v13)],
+//    products: [
+//        .library(name: "Sora", targets: ["Sora"]),
+//        .library(name: "WebRTC", targets: ["WebRTC"]),
+//    ],
+//    targets: [
+//        .binaryTarget(
+//            name: "WebRTC",
+//            url: "https://github.com/shiguredo/sora-ios-sdk-specs/releases/download/\(file)",
+//            checksum: "b9242358b4d53cafdf19d75a731cea87c84205475f54816e3a5cfd99cdb03216"
+//        ),
+//        .target(
+//            name: "Sora",
+//            dependencies: ["WebRTC"],
+//            path: "Sora",
+//            exclude: ["Info.plist"],
+//            resources: [.process("VideoView.xib")]
+//        ),
+//    ]
+//)
