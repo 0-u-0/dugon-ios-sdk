@@ -11,9 +11,6 @@ let package = Package(
     products: [
         .library(name: "Dugon", targets: ["Dugon"]),
     ],
-    dependencies: [
-        .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.6")
-    ],
     targets: [
         .binaryTarget(
             name: "WebRTC",
@@ -24,7 +21,6 @@ let package = Package(
             name: "Dugon",
             dependencies: [
                 "WebRTC",
-                "Starscream"
             ]
         ),
     ]

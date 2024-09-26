@@ -18,7 +18,7 @@ struct ICEParameters: Codable {
     let usernameFragment: String
 }
 
-public protocol SessionDelegate: class {
+public protocol SessionDelegate: AnyObject {
     func onConnected()
     func onSender(senderId: String, tokenId: String, metadata: [String: String])
     func onIn(tokenId: String, metadata: [String: String])
@@ -48,7 +48,7 @@ public class Session {
         self.factory = factory
         self.tokenId = tokenId
         let params = ["sessionId": sessionId, "tokenId": tokenId, "metadata": metadata] as [String: Any]
-        socket = Socket(url: url, params: params)
+        socket = Socket(url, params: params)
         socket.onConnected = onConnected
         socket.onNotification = onNotification
     }

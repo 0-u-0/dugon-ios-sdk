@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import Starscream
-
 
 
 typealias RequestCallback = (_ data: [String:Any]) -> ()
@@ -16,6 +14,7 @@ typealias RequestCallback = (_ data: [String:Any]) -> ()
 class Socket : WebSocketDelegate{
 
     let socket:WebSocket
+    let uri:String
     let url:String
         
     public var onConnected:(()->Void)?
@@ -23,14 +22,12 @@ class Socket : WebSocketDelegate{
 
     //TODO: add timeout
     var callbacks:[Int:RequestCallback]
-    public init(url:String,params:[String:Any]) {
-        self.url = url
+    public init(_ uri:String, params:[String:Any]) {
+        self.uri = uri
         self.callbacks = [Int:RequestCallback]()
 
-        let completeUrl = "\(self.url)?params=\(params.json.encodBase64()!)"
-        var request = URLRequest(url: URL(string: completeUrl)!)
-        request.timeoutInterval = 1
-        socket = WebSocket(request: request)
+        self.url = "\(self.uri)?params=\(params.json.encodBase64()!)"
+        socket = WebSocket(self.url)
         socket.delegate = self
     }
     
@@ -44,12 +41,12 @@ class Socket : WebSocketDelegate{
         let data:[String : Any] = ["id":id,"method":method,"params":params]
         
         callbacks[id] = callback
-        socket.write(string: data.json)
+        socket.write(data.json)
     }
 
     
     // MARK: - WebSocketDelegate
-    func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocketClient) {
+    func didReceive(event: WebSocketEvent) {
         switch event {
         case .connected(_):
             guard let onConnected = onConnected else { return } //TODO:error
