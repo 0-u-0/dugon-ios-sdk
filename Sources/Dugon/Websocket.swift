@@ -68,8 +68,10 @@ public class WebSocket : NSObject, URLSessionDataDelegate, URLSessionWebSocketDe
                 switch message {
                 case .string(let text):
                     print("Received text: \(text)")
+                    weakSelf.delegate?.didReceive(event: .text(text))
                 case .data(let data):
                     print("Received data: \(data.count) bytes")
+                    weakSelf.delegate?.didReceive(event: .binary(data))
                 @unknown default:
                     fatalError()
                 }
